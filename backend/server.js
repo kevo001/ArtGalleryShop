@@ -10,6 +10,10 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+// Routes
+const itemRoutes = require('./routes/itemRoutes');
+app.use('/api', itemRoutes);
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
@@ -20,7 +24,6 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // Basic route
 app.get('/', (req, res) => res.send('API is running'));
-
 
 
 // Start the server
