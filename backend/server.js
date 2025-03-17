@@ -11,8 +11,14 @@ app.use(cors());
 app.use(express.json());
 
 // Routes
-const itemRoutes = require('./routes/itemRoutes');
+const itemRoutes = require('./routes/ItemRoutes');
 app.use('/api', itemRoutes);
+
+const artistRoutes = require('./routes/ArtistRoutes');
+app.use('/api', artistRoutes);
+
+const orderRoutes = require('./routes/OrderRoutes');
+app.use('/api', orderRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
