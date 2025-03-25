@@ -57,7 +57,7 @@ const AdminProducts = () => {
                         </a>
                     </li>
                     <li className="relative group">
-                        <a href="#" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
+                        <a href="/admin/order-history" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
                             Orders
                             <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
                         </a>
@@ -69,7 +69,7 @@ const AdminProducts = () => {
                         </a>
                     </li>
                     <li className="relative group">
-                        <a href="#" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
+                        <a href="/admin/artists" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
                             Artists
                             <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
                         </a>
@@ -90,6 +90,7 @@ const AdminProducts = () => {
             </header>
 
             {/* FILTERS & ACTION BUTTONS */}
+            
             <section className="mt-6 max-w-6xl mx-auto w-full px-4">
                 <div className="flex justify-between items-center">
                     <div className="space-x-6">
