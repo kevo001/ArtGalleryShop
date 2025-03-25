@@ -24,6 +24,17 @@ router.get('/artists', async (req, res) => {
   }
 });
 
+// Update an artist
+router.put("/artists/:id", async (req, res) => {
+  try {
+      const updatedArtist = await Artist.findByIdAndUpdate(req.params.id, req.body, { new: true });
+      res.json(updatedArtist);
+  } catch (err) {
+      console.error("Error updating artist:", err);
+      res.status(500).json({ error: "Could not update artist" });
+  }
+});
+
 // Delete an artist
 router.delete('/artists/:id', async (req, res) => {
   try {
