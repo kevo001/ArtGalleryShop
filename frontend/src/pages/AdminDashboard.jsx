@@ -47,13 +47,13 @@ const AdminDashboard = () => {
         {/* Navigation Links */}
         <ul className="flex space-x-6">
           <li className="relative group">
-            <a href="#" className="text-[#FFD700] hover:text-[#FFD700] transition duration-300">
+            <a href="/admin" className="text-[#FFD700] hover:text-[#FFD700] transition duration-300">
               Home
               <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
             </a>
           </li>
           <li className="relative group">
-            <a href="#" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
+            <a href="/admin/order-history" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
               Orders
               <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
             </a>
@@ -65,7 +65,7 @@ const AdminDashboard = () => {
             </a>
           </li>
           <li className="relative group">
-            <a href="#" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
+            <a href="/admin/artists" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
               Artists
               <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
             </a>
@@ -80,7 +80,7 @@ const AdminDashboard = () => {
       </nav>
 
       {/* CONTENT */}
-      <div className="flex-grow">
+      
         {/* HEADER */}
         <header className="bg-gradient-to-r from-[#444] to-[#2F2F2F] text-center py-10 shadow-lg">
           <h1 className="text-4xl font-bold text-white">Velkommen til Adminpanelet</h1>
@@ -88,6 +88,7 @@ const AdminDashboard = () => {
         </header>
 
         {/* STAT CARDS */}
+        <div className="flex-grow">
         <section className="flex justify-center gap-6 mt-8 max-w-5xl mx-auto">
           <div className="bg-[#2A2A2A] p-6 rounded-lg text-center shadow-md w-64">
             <h2 className="text-lg text-[#FFD700] font-semibold">Aktive Produkter</h2>
