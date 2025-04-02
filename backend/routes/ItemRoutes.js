@@ -6,7 +6,26 @@ const router = express.Router();
 // Create a new item
 router.post('/items', async (req, res) => {
   try {
-    const newItem = new Item(req.body);
+    const {
+      title,
+      description,
+      price,
+      imageUrl,
+      size,
+      category,
+      artistId,
+    } = req.body;
+
+    const newItem = new Item({
+      title,
+      description,
+      price,
+      imageUrl,
+      size,
+      category,
+      artist: artistId, // Store artistId in the 'artist' field
+    });
+
     await newItem.save();
     res.status(201).json(newItem);
   } catch (error) {
@@ -14,10 +33,10 @@ router.post('/items', async (req, res) => {
   }
 });
 
-// Get all items
+// Get all items (with populated artist data)
 router.get('/items', async (req, res) => {
   try {
-    const items = await Item.find();
+    const items = await Item.find().populate('artist'); // <-- Important fix
     res.json(items);
   } catch (error) {
     res.status(500).json({ error: error.message });
