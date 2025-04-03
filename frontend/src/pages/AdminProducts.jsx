@@ -5,6 +5,10 @@ const AdminProducts = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [artists, setArtists] = useState([]);
+    const [categories, setCategories] = useState([]);
+    const [activeCategory, setActiveCategory] = useState("");
+    const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
+    const [newCategoryName, setNewCategoryName] = useState("");
 
     const [newProduct, setNewProduct] = useState({
         title: "", description: "", price: "", imageUrl: "", size: "", category: "", artistId: ""
@@ -24,6 +28,14 @@ const AdminProducts = () => {
             .then(res => res.json())
             .then(data => setArtists(data))
             .catch(err => console.error("Error fetching artists:", err));
+    }, []);
+
+    // Fetch categories for dropdown and filtering
+    useEffect(() => {
+        fetch("http://localhost:5000/api/categories")
+            .then(res => res.json())
+            .then(data => setCategories(data))
+            .catch(err => console.error("Error fetching categories:", err));
     }, []);
 
     // Handle form input change
@@ -58,6 +70,28 @@ const AdminProducts = () => {
         }
     };
 
+    // Handle category creation
+    const handleCreateCategory = async () => {
+        if (!newCategoryName) return;
+        try {
+            const res = await fetch("http://localhost:5000/api/categories", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ name: newCategoryName }),
+            });
+
+            if (res.ok) {
+                const updated = await fetch("http://localhost:5000/api/categories");
+                const data = await updated.json();
+                setCategories(data);
+                setNewCategoryName("");
+                setIsCategoryModalOpen(false);
+            }
+        } catch (err) {
+            console.error("Error creating category:", err);
+        }
+    };
+
     // Handle product deletion
     const handleDelete = async () => {
         const confirmed = window.confirm("Er du sikker på at du vil slette dette produktet?");
@@ -83,16 +117,44 @@ const AdminProducts = () => {
         <div className="flex flex-col min-h-screen bg-[#1A1A1A] text-white">
             {/* NAVIGATION */}
             <nav className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-[#282828] to-[#3E3E3E] drop-shadow-lg">
+                {/* Logo Section */}
                 <div>
                     <h1 className="text-2xl font-bold text-[#F5F5F5]">galleri edwin</h1>
                     <p className="text-[#CCCCCC] text-sm">Discover the exceptional living with art</p>
                 </div>
+
+                {/* Navigation Links */}
                 <ul className="flex space-x-6">
-                    <li><a href="/admin" className="text-[#F5F5F5] hover:text-[#FFD700]">Home</a></li>
-                    <li><a href="/admin/order-history" className="text-[#F5F5F5] hover:text-[#FFD700]">Orders</a></li>
-                    <li><a href="/admin/products" className="text-[#FFD700]">Products</a></li>
-                    <li><a href="/admin/artists" className="text-[#F5F5F5] hover:text-[#FFD700]">Artists</a></li>
-                    <li><a href="#" className="text-[#F5F5F5] hover:text-[#FFD700]">Log Out</a></li>
+                    <li className="relative group">
+                        <a href="/admin" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
+                            Home
+                            <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
+                        </a>
+                    </li>
+                    <li className="relative group">
+                        <a href="/admin/order-history" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
+                            Orders
+                            <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
+                        </a>
+                    </li>
+                    <li className="relative group">
+                        <a href="/admin/products" className="text-[#FFD700] hover:text-[#FFD700] transition duration-300">
+                            Products
+                            <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
+                        </a>
+                    </li>
+                    <li className="relative group">
+                        <a href="/admin/artists" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
+                            Artists
+                            <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
+                        </a>
+                    </li>
+                    <li className="relative group">
+                        <a href="#" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
+                            Log Out
+                            <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
+                        </a>
+                    </li>
                 </ul>
             </nav>
 
@@ -102,55 +164,101 @@ const AdminProducts = () => {
                 <p className="text-gray-300 mt-2">Administrer, opprett og rediger produktene i galleriet</p>
             </header>
 
-            {/* FILTERS & CREATE */}
-            <section className="mt-6 max-w-6xl mx-auto w-full px-4">
-                <div className="flex justify-between items-center">
-                    <div className="space-x-6">
-                        <button className="text-[#FFD700] hover:underline">Malerier</button>
-                        <button className="text-[#FFD700] hover:underline">Skulpturer</button>
-                        <button className="text-[#FFD700] hover:underline">Fotografi</button>
-                    </div>
-                    <div className="flex space-x-4">
-                        <select className="bg-[#2A2A2A] text-white px-3 py-2 rounded-lg">
-                            <option>Sorter: Nyeste</option>
-                            <option>Sorter: Eldste</option>
-                        </select>
+
+
+            {/* CATEGORY MODAL */}
+            {isCategoryModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+                    <div className="bg-[#2A2A2A] p-6 rounded-lg shadow-lg w-80 relative">
                         <button
-                            className="bg-[#FFD700] text-black px-4 py-2 rounded-lg font-semibold cursor-pointer"
-                            onClick={() => setIsModalOpen(true)}
+                            className="absolute top-2 right-3 text-gray-400 hover:text-white text-2xl"
+                            onClick={() => setIsCategoryModalOpen(false)}
                         >
-                            Create New
+                            &times;
                         </button>
+                        <h2 className="text-xl font-semibold text-white mb-4 text-center">Ny kategori</h2>
+                        <input
+                            type="text"
+                            value={newCategoryName}
+                            onChange={(e) => setNewCategoryName(e.target.value)}
+                            placeholder="Kategorinavn"
+                            className="w-full p-2 mb-4 bg-[#1A1A1A] text-white rounded border border-gray-600 focus:border-[#FFD700] outline-none"
+                        />
+                        <div className="flex justify-between">
+                            <button
+                                className="bg-[#FFD700] text-black px-4 py-2 rounded-lg font-semibold w-full hover:bg-[#ffbb00]"
+                                onClick={handleCreateCategory}
+                            >
+                                Opprett
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </section>
+            )}
 
-            {/* PRODUCT GRID */}
+
             <section className="mt-8 max-w-7xl mx-auto px-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-                    {products.map((product) => (
-                        <div
-                            key={product._id}
-                            onClick={() => setSelectedProduct(product)}
-                            className="cursor-pointer w-[230px] rounded-2xl bg-[#2A2A2A] overflow-hidden shadow-md border-2 border-[#2A2A2A] hover:border-[#FFD700] transition-all duration-300 transform hover:-translate-y-1"
-                        >
-                            <div className="h-[160px] bg-[#2A2A2A] flex items-center justify-center overflow-hidden p-2">
-                                {product.imageUrl ? (
-                                    <img
-                                        src={product.imageUrl}
-                                        alt={product.title}
-                                        className="h-full w-full object-cover"
-                                    />
-                                ) : (
-                                    <p className="text-sm text-gray-500">Bilde kommer</p>
-                                )}
-                            </div>
-                            <div className="p-4">
-                                <h3 className="text-lg font-bold text-[#FFD700]">{product.title}</h3>
-                                <p className="text-sm text-gray-300">{product.price} kr</p>
-                            </div>
+                {/* FILTERS & CREATE */}
+                <section className="mb-4"> 
+                    <div className="flex justify-between items-center">
+                        <div className="flex items-center space-x-3">
+                            <select
+                                className="bg-[#2A2A2A] text-white px-3 py-2 rounded-lg border border-[#444] cursor-pointer hover:border-[#FFD700] transition duration-300"
+                                value={activeCategory}
+                                onChange={(e) => setActiveCategory(e.target.value)}
+                            >
+                                <option value="">Alle kategorier</option>
+                                {categories.map((cat) => (
+                                    <option key={cat._id} value={cat.name}>{cat.name}</option>
+                                ))}
+                            </select>
+                            <button
+                                onClick={() => setIsCategoryModalOpen(true)}
+                                className="bg-[#2A2A2A] text-white px-3 py-2 rounded-lg border border-[#444] cursor-pointer hover:border-[#FFD700] transition duration-300"
+                                title="Ny kategori"
+                            >
+                                +
+                            </button>
                         </div>
-                    ))}
+                        <div className="flex space-x-4">
+
+                            <button
+                                className="bg-[#FFD700] text-black px-4 py-2 rounded-lg font-semibold cursor-pointer"
+                                onClick={() => setIsModalOpen(true)}
+                            >
+                                Create New
+                            </button>
+                        </div>
+                    </div>
+                </section>
+
+                {/* PRODUCT GRID */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+                    {products
+                        .filter(product => !activeCategory || product.category === activeCategory)
+                        .map((product) => (
+                            <div
+                                key={product._id}
+                                onClick={() => setSelectedProduct(product)}
+                                className="cursor-pointer w-[230px] rounded-2xl bg-[#2A2A2A] overflow-hidden shadow-md border-2 border-[#2A2A2A] hover:border-[#FFD700] transition-all duration-300 transform hover:-translate-y-1"
+                            >
+                                <div className="h-[160px] bg-[#2A2A2A] flex items-center justify-center overflow-hidden p-2">
+                                    {product.imageUrl ? (
+                                        <img
+                                            src={product.imageUrl}
+                                            alt={product.title}
+                                            className="h-full w-full object-cover"
+                                        />
+                                    ) : (
+                                        <p className="text-sm text-gray-500">Bilde kommer</p>
+                                    )}
+                                </div>
+                                <div className="p-4">
+                                    <h3 className="text-lg font-bold text-[#FFD700]">{product.title}</h3>
+                                    <p className="text-sm text-gray-300">{product.price} kr</p>
+                                </div>
+                            </div>
+                        ))}
                 </div>
             </section>
 
@@ -206,7 +314,7 @@ const AdminProducts = () => {
                         <h2 className="text-2xl font-semibold text-white mb-6 text-center">Legg til nytt produkt</h2>
 
                         {/* FORM FIELDS */}
-                        {["title", "description", "price", "imageUrl", "size", "category"].map((field) => (
+                        {["title", "description", "price", "imageUrl", "size"].map((field) => (
                             <div key={field}>
                                 <label className="block text-[#F5F5F5] mb-1">
                                     {field.charAt(0).toUpperCase() + field.slice(1)}
@@ -220,6 +328,20 @@ const AdminProducts = () => {
                                 />
                             </div>
                         ))}
+
+                        {/* CATEGORY DROPDOWN */}
+                        <label className="block text-[#F5F5F5] mb-1">Kategori</label>
+                        <select
+                            name="category"
+                            className="w-full p-2 mb-4 bg-[#1A1A1A] text-white rounded border border-gray-600 focus:border-[#FFD700] outline-none cursor-pointer"
+                            value={newProduct.category}
+                            onChange={handleChange}
+                        >
+                            <option value="">Velg en kategori</option>
+                            {categories.map((cat) => (
+                                <option key={cat._id} value={cat.name}>{cat.name}</option>
+                            ))}
+                        </select>
 
                         {/* ARTIST DROPDOWN */}
                         <label className="block text-[#F5F5F5] mb-1">Kunstner</label>
