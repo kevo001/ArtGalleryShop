@@ -3,65 +3,73 @@ import React, { useEffect, useState } from "react";
 const AdminProducts = () => {
     const [products, setProducts] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [newProduct, setNewProduct] = useState({
-        title: "", description: "", price: "", imageUrl: "", size: "", category: "", artistId: ""
-    });
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [artists, setArtists] = useState([]);
 
+    const [newProduct, setNewProduct] = useState({
+        title: "", description: "", price: "", imageUrl: "", size: "", category: "", artistId: ""
+    });
+
+    // Fetch products on mount
     useEffect(() => {
         fetch("http://localhost:5000/api/items")
             .then(res => res.json())
-            .then(setProducts)
+            .then(data => setProducts(data))
             .catch(err => console.error("Error fetching products:", err));
     }, []);
 
+    // Fetch artists for dropdown
     useEffect(() => {
         fetch("http://localhost:5000/api/artists")
             .then(res => res.json())
-            .then(setArtists)
+            .then(data => setArtists(data))
             .catch(err => console.error("Error fetching artists:", err));
     }, []);
 
+    // Handle form input change
     const handleChange = (e) => {
         setNewProduct({ ...newProduct, [e.target.name]: e.target.value });
     };
 
+    // Handle product creation
     const handleSubmit = async () => {
         const { title, description, price, imageUrl, size, category, artistId } = newProduct;
-
         if (!title || !description || !price || !imageUrl || !size || !category || !artistId) {
             alert("Alle felt må fylles ut.");
             return;
         }
 
         try {
-            const response = await fetch("http://localhost:5000/api/items", {
+            const res = await fetch("http://localhost:5000/api/items", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify(newProduct),
             });
 
-            if (response.ok) {
-                const res = await fetch("http://localhost:5000/api/items");
-                const updatedProducts = await res.json();
-                setProducts(updatedProducts);
+            if (res.ok) {
+                const updated = await fetch("http://localhost:5000/api/items");
+                const data = await updated.json();
+                setProducts(data);
                 setIsModalOpen(false);
                 setNewProduct({ title: "", description: "", price: "", imageUrl: "", size: "", category: "", artistId: "" });
             }
-        } catch (error) {
-            console.error("Error creating product:", error);
+        } catch (err) {
+            console.error("Error creating product:", err);
         }
     };
 
-    const handleDelete = async (id) => {
+    // Handle product deletion
+    const handleDelete = async () => {
         const confirmed = window.confirm("Er du sikker på at du vil slette dette produktet?");
         if (!confirmed) return;
 
         try {
-            const res = await fetch(`http://localhost:5000/api/items/${id}`, { method: "DELETE" });
+            const res = await fetch(`http://localhost:5000/api/items/${selectedProduct._id}`, {
+                method: "DELETE",
+            });
+
             if (res.ok) {
-                setProducts(products.filter(p => p._id !== id));
+                setProducts(products.filter((p) => p._id !== selectedProduct._id));
                 setSelectedProduct(null);
             } else {
                 alert("Feil ved sletting av produktet.");
@@ -90,24 +98,55 @@ const AdminProducts = () => {
 
             {/* HEADER */}
             <header className="bg-gradient-to-r from-[#444] to-[#2F2F2F] text-center py-10 shadow-lg">
-                <h1 className="text-4xl font-bold text-white">Produkter</h1>
+                <h1 className="text-4xl font-bold">Produkter</h1>
                 <p className="text-gray-300 mt-2">Administrer, opprett og rediger produktene i galleriet</p>
             </header>
 
-            {/* PRODUCT LIST */}
+            {/* FILTERS & CREATE */}
+            <section className="mt-6 max-w-6xl mx-auto w-full px-4">
+                <div className="flex justify-between items-center">
+                    <div className="space-x-6">
+                        <button className="text-[#FFD700] hover:underline">Malerier</button>
+                        <button className="text-[#FFD700] hover:underline">Skulpturer</button>
+                        <button className="text-[#FFD700] hover:underline">Fotografi</button>
+                    </div>
+                    <div className="flex space-x-4">
+                        <select className="bg-[#2A2A2A] text-white px-3 py-2 rounded-lg">
+                            <option>Sorter: Nyeste</option>
+                            <option>Sorter: Eldste</option>
+                        </select>
+                        <button
+                            className="bg-[#FFD700] text-black px-4 py-2 rounded-lg font-semibold cursor-pointer"
+                            onClick={() => setIsModalOpen(true)}
+                        >
+                            Create New
+                        </button>
+                    </div>
+                </div>
+            </section>
+
+            {/* PRODUCT GRID */}
             <section className="mt-8 max-w-7xl mx-auto px-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                     {products.map((product) => (
                         <div
                             key={product._id}
                             onClick={() => setSelectedProduct(product)}
-                            className="cursor-pointer w-[230px] rounded-2xl bg-[#2A2A2A] overflow-hidden shadow-md border-2 border-[#333] hover:border-[#FFD700] transition-transform"
+                            className="cursor-pointer w-[230px] rounded-2xl bg-[#2A2A2A] overflow-hidden shadow-md border-2 border-[#2A2A2A] hover:border-[#FFD700] transition-all duration-300 transform hover:-translate-y-1"
                         >
-                            <div className="h-[160px] bg-[#3A3A3A] flex items-center justify-center px-4">
-                                <p className="text-sm text-gray-500">Bilde kommer</p>
+                            <div className="h-[160px] bg-[#2A2A2A] flex items-center justify-center overflow-hidden p-2">
+                                {product.imageUrl ? (
+                                    <img
+                                        src={product.imageUrl}
+                                        alt={product.title}
+                                        className="h-full w-full object-cover"
+                                    />
+                                ) : (
+                                    <p className="text-sm text-gray-500">Bilde kommer</p>
+                                )}
                             </div>
                             <div className="p-4">
-                                <h3 className="text-lg font-bold text-[#FFD700] mb-1">{product.title}</h3>
+                                <h3 className="text-lg font-bold text-[#FFD700]">{product.title}</h3>
                                 <p className="text-sm text-gray-300">{product.price} kr</p>
                             </div>
                         </div>
@@ -115,7 +154,7 @@ const AdminProducts = () => {
                 </div>
             </section>
 
-            {/* DETAIL MODAL */}
+            {/* PRODUCT DETAILS MODAL */}
             {selectedProduct && (
                 <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
                     <div className="bg-[#2A2A2A] p-6 rounded-lg shadow-lg w-[400px] relative">
@@ -126,20 +165,89 @@ const AdminProducts = () => {
                             &times;
                         </button>
                         <h2 className="text-2xl font-semibold text-white mb-4 text-center">{selectedProduct.title}</h2>
-                        <img src={selectedProduct.imageUrl} alt={selectedProduct.title} className="w-full h-40 object-cover rounded mb-4" />
-                        <div className="space-y-1 text-sm text-gray-300">
-                            <p><span className="font-semibold text-white">Pris:</span> {selectedProduct.price} kr</p>
-                            <p><span className="font-semibold text-white">Beskrivelse:</span> {selectedProduct.description}</p>
-                            <p><span className="font-semibold text-white">Størrelse:</span> {selectedProduct.size}</p>
-                            <p><span className="font-semibold text-white">Kategori:</span> {selectedProduct.category}</p>
-                            <p><span className="font-semibold text-white">Kunstner:</span> {selectedProduct.artist?.name}</p>
-                        </div>
-                        <div className="flex justify-end mt-6">
+                        {selectedProduct.imageUrl && (
+                            <div className="mb-4">
+                                <img
+                                    src={selectedProduct.imageUrl}
+                                    alt={selectedProduct.title}
+                                    className="w-full max-h-[300px] object-contain rounded"
+                                />
+                            </div>
+                        )}
+                        <p className="text-sm text-gray-300 mb-1"><span className="font-semibold text-white">Pris:</span> {selectedProduct.price} kr</p>
+                        <p className="text-sm text-gray-300 mb-1"><span className="font-semibold text-white">Beskrivelse:</span> {selectedProduct.description}</p>
+                        <p className="text-sm text-gray-300 mb-1"><span className="font-semibold text-white">Størrelse:</span> {selectedProduct.size}</p>
+                        <p className="text-sm text-gray-300 mb-1"><span className="font-semibold text-white">Kategori:</span> {selectedProduct.category}</p>
+                        {selectedProduct.artist?.name && (
+                            <p className="text-sm text-gray-300 mb-3"><span className="font-semibold text-white">Kunstner:</span> {selectedProduct.artist.name}</p>
+                        )}
+                        <div className="flex justify-end mt-4">
                             <button
-                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold"
-                                onClick={() => handleDelete(selectedProduct._id)}
+                                onClick={handleDelete}
+                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold cursor-pointer"
                             >
                                 Slett
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* CREATE PRODUCT MODAL */}
+            {isModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+                    <div className="bg-[#2A2A2A] p-6 rounded-lg shadow-lg w-96 relative">
+                        <button
+                            className="absolute top-2 right-3 text-gray-400 hover:text-white text-2xl"
+                            onClick={() => setIsModalOpen(false)}
+                        >
+                            &times;
+                        </button>
+                        <h2 className="text-2xl font-semibold text-white mb-6 text-center">Legg til nytt produkt</h2>
+
+                        {/* FORM FIELDS */}
+                        {["title", "description", "price", "imageUrl", "size", "category"].map((field) => (
+                            <div key={field}>
+                                <label className="block text-[#F5F5F5] mb-1">
+                                    {field.charAt(0).toUpperCase() + field.slice(1)}
+                                </label>
+                                <input
+                                    type={field === "price" ? "number" : "text"}
+                                    name={field}
+                                    className="w-full p-2 mb-4 bg-[#1A1A1A] text-white rounded border border-gray-600 focus:border-[#FFD700] outline-none"
+                                    value={newProduct[field]}
+                                    onChange={handleChange}
+                                />
+                            </div>
+                        ))}
+
+                        {/* ARTIST DROPDOWN */}
+                        <label className="block text-[#F5F5F5] mb-1">Kunstner</label>
+                        <select
+                            name="artistId"
+                            className="w-full p-2 mb-4 bg-[#1A1A1A] text-white rounded border border-gray-600 focus:border-[#FFD700] outline-none cursor-pointer"
+                            value={newProduct.artistId}
+                            onChange={handleChange}
+                        >
+                            <option value="">Velg en kunstner</option>
+                            {artists.map((artist) => (
+                                <option key={artist._id} value={artist._id}>{artist.name}</option>
+                            ))}
+                        </select>
+
+                        {/* BUTTONS */}
+                        <div className="flex justify-between mt-6">
+                            <button
+                                className="bg-[#FFD700] hover:bg-[#ffbb00] text-black px-4 py-2 rounded-lg font-semibold w-1/2 mr-2 cursor-pointer"
+                                onClick={handleSubmit}
+                            >
+                                Legg til
+                            </button>
+                            <button
+                                className="bg-[#FFD700] hover:bg-[#ffbb00] text-black px-4 py-2 rounded-lg font-semibold w-1/2 ml-2 cursor-pointer"
+                                onClick={() => setIsModalOpen(false)}
+                            >
+                                Avbryt
                             </button>
                         </div>
                     </div>
