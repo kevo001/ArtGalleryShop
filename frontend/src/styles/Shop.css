@@ -1,0 +1,255 @@
+main {
+    display: flex;
+    padding: 40px 40px 80px;
+    background-color: white;
+    max-width: 100vw;
+    margin: 0 auto;
+    height: 100vh;
+  }
+  
+  .filter {
+    width: 250px;
+    padding: 20px;
+    margin-right: 40px;
+  }
+  
+  .filter h3,
+  .filter h4 {
+    margin: 30px 0;
+    color: black;
+  }
+  
+  .filter label {
+    display: block;
+    margin: 5px 0;
+    color: black;
+  }
+  
+  .shop-header {
+    padding: 0 0 20px 0;
+    text-align: left;
+    color: #111;
+  }
+  
+  .shop-header h2 {
+    font-size: 2rem;
+    color: #111;
+  }
+  
+  .shop-header p {
+    font-size: 1rem;
+    color: #555;
+    margin: 0;
+  }
+  
+  .shop {
+    width: 100%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 50px;
+    margin-top: 20px;
+    justify-items: center;
+  }
+  
+  .art-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    width: 100%;
+    max-width: 220px;
+    transition: transform 0.2s ease;
+    cursor: pointer;
+  }
+  
+  .art-card:hover {
+    transform: scale(1.03);
+  }
+  
+  .art-card img {
+    width: 100%;
+    height: 250px;
+    object-fit: cover;
+  }
+  
+  .art-card h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 10px 0 4px;
+    text-align: center;
+    word-wrap: break-word;
+    white-space: normal; 
+    overflow: visible;
+    text-overflow: unset;
+    width: 100%;
+    color: #111;
+  }
+  
+  .art-card p {
+    margin: 0;
+    color: #555;
+    font-size: 0.95rem;
+  }
+  
+  .popup {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0,0,0,0.9);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 9999;
+  }
+  
+  .popup-content {
+    display: flex;
+    background: #fff;
+    color: #111;
+    max-width: 900px;
+    width: 90%;
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+    text-align: start;
+    height: auto;
+  }
+  
+  .popup-image {
+    flex: 1;
+    max-height: 100%;
+    max-width: 50%;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+  }
+  
+  .popup-image img {
+    width: 100%;
+    object-fit: cover;
+    display: block;
+    padding: 10px;
+    max-height: 80vh;
+  }
+  
+  .popup-details {
+    flex: 1;
+    padding: 30px;
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    position: relative;
+  }
+  
+  .popup-details h2 {
+    font-size: 1.5rem;
+    margin-bottom: 10px;
+  }
+  
+  .price {
+    font-weight: bold;
+    margin-bottom: 20px;
+  }
+  
+  .qty-label {
+    margin-top: 10px;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  
+  .quantity-controls {
+    display: flex;
+    gap: 10px;
+    margin: 10px 0 20px;
+  }
+  
+  .quantity-controls input {
+    width: 40px;
+    text-align: center;
+  }
+  
+  .quantity-controls button {
+    width: 32px;
+    height: 32px;
+    font-weight: bold;
+    background: none;
+    border: 1px solid #ccc;
+    cursor: pointer;
+  }
+  
+  .add-to-cart {
+    background: black;
+    color: white;
+    padding: 12px;
+    font-weight: bold;
+    border: none;
+    margin-bottom: 30px;
+    cursor: pointer;
+    transition: background 0.2s ease;
+  }
+  
+  .add-to-cart:hover {
+    background: #333;
+  }
+  
+  .meta h4 {
+    font-size: 1rem;
+    margin-bottom: 5px;
+  }
+  
+  .meta p {
+    margin-bottom: 20px;
+    font-size: 0.95rem;
+    color: #333;
+  }
+  
+  .close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 40px;
+    color: black;
+    cursor: pointer;
+  }
+  
+  /* Responsive */
+  @media (max-width: 1400px) {
+    .shop {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+  
+  @media (max-width: 1100px) {
+    .shop {
+      grid-template-columns: repeat(3, 1fr);
+    }
+  }
+  
+  @media (max-width: 768px) {
+    main {
+      flex-direction: column;
+      padding: 20px;
+    }
+  
+    .filter {
+      width: 100%;
+    }
+  
+    .popup-content {
+      flex-direction: column;
+      max-width: 95%;
+      text-align: center;
+      padding: 20px;
+    }
+  
+    .popup img {
+      max-width: 80%;
+    }
+  
+    .modal-info {
+      padding-left: 0;
+      margin-top: 20px;
+    }
+  }
+  
