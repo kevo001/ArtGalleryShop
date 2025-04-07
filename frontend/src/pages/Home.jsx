@@ -11,8 +11,9 @@ const Home = () => {
     </div>
 </div>
     
+    <div class="search">
     <input className="search-bar" type="text" placeholder="Search thousands of artworks..."/>
-    
+    </div>
     <div className="collection">
         <p>Explore Our Collection</p>
         <p>Immerse yourself in a curated selection of sculptures, paintings, and more.</p>
