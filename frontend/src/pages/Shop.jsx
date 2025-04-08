@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { openModal, closeModal } from "../scripts/shopScripts";
 import "../styles/Shop.css";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Shop = () => {
   const [artworks, setArtworks] = useState([]);
@@ -8,8 +9,10 @@ const Shop = () => {
   const [selectedArt, setSelectedArt] = useState(null);
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-
+  const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
+  const location = useLocation();
+  const cartFromState = location.state?.cart;
   const [filters, setFilters] = useState({
     size: [],
     artist: "",
@@ -115,6 +118,23 @@ const Shop = () => {
     setCart((prevCart) => prevCart.filter((item) => item._id !== id));
   };
 
+  useEffect(() => {
+    const savedCart = JSON.parse(localStorage.getItem("cart"));
+    if (savedCart) {
+      setCart(savedCart);
+    }
+  }, []);
+  
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
+
+  useEffect(() => {
+    if (location.state?.cart) {
+      setCart(location.state.cart);
+    }
+  }, [location.state]);
+
   return (
     <div>
       <main>
@@ -193,10 +213,7 @@ const Shop = () => {
       </button>
     </div>
   </div>
-
-
-            <p>{filteredArtworks.length} product{filteredArtworks.length !== 1 && "s"}</p>
-          </div>
+</div>
 
           <section className="shop">
             {filteredArtworks.map((art, index) => (
@@ -226,30 +243,21 @@ const Shop = () => {
               <span className="close" onClick={() => closeModal(setSelectedArt)}>
                 &times;
               </span>
-
               <h2>{selectedArt.title}</h2>
               <p className="price">
                 kr {Number(selectedArt.price).toLocaleString("no-NO")},00
               </p>
-
               <label className="qty-label">Quantity *</label>
               <div className="quantity-controls">
                 <button disabled>-</button>
                 <input type="number" value={1} readOnly />
                 <button disabled>+</button>
               </div>
-
-              <button
-                className="add-to-cart"
-                onClick={() => {
-                  addToCart(selectedArt);
-                  closeModal(setSelectedArt);
-                }}
-              >
-                Add to Cart
-              </button>
-
               <div className="meta">
+                <h4>Artist</h4>
+              {selectedArt.artist?.name && (
+              <p className="artist-name">{selectedArt.artist.name}</p>
+              )}
                 <div>
                   <h4>Dimension</h4>
                   <p>{selectedArt.size} cm</p>
@@ -259,6 +267,15 @@ const Shop = () => {
                   <p>{selectedArt.year || "Unknown"}</p>
                 </div>
               </div>
+              <button
+                className="add-to-cart"
+                onClick={() => {
+                  addToCart(selectedArt);
+                  closeModal(setSelectedArt);
+                }}
+              >
+                Add to Cart
+              </button>
             </div>
           </div>
         </div>
@@ -291,11 +308,26 @@ const Shop = () => {
                    </button>
                  </div>
                </li>
-               
                 ))}
               </ul>
             )}
           </div>
+          {cart.length > 0 && (
+      <div className="cart-footer">
+        <p className="cart-total">
+          Total: kr{" "}
+          {cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString("no-NO")},00
+        </p>
+        <button
+  className="checkout-btn"
+  onClick={() => navigate("/order-summary", { state: { cart } })}
+>
+  Proceed to Checkout
+</button>
+      </div>
+    )}
+
+
         </div>
       )}
     </div>
