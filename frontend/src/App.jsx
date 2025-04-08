@@ -8,6 +8,7 @@ import Home from "./pages/Home";
 import Artists from "./pages/Artists";
 import AdminOrderHistory from "./pages/AdminOrderHistory";
 import AdminArtists from "./pages/AdminArtists";
+import OrderSummary from "./pages/OrderSummary";
 
 function Layout() {
   const location = useLocation();
@@ -24,6 +25,7 @@ function Layout() {
         <Route path="/shop" element={<Shop />} />
         <Route path="/" element={<Home />} />
         <Route path="/artists" element={<Artists />} />
+        <Route path="/order-summary" element={<OrderSummary />} />
       </Routes>
     </>
   );
