@@ -20,6 +20,9 @@ app.use('/api', artistRoutes);
 const orderRoutes = require('./routes/OrderRoutes');
 app.use('/api', orderRoutes);
 
+const categoryRoutes = require('./routes/CategoryRoutes');
+app.use('/api', categoryRoutes);
+
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
   useNewUrlParser: true,
