@@ -1,104 +1,337 @@
-import React, { useState } from "react";
+import { useEffect, useState } from "react";
+import { openModal, closeModal } from "../scripts/shopScripts";
+import "../styles/Shop.css";
+import { useNavigate, useLocation } from "react-router-dom";
 
 const Shop = () => {
-    const [selectedArt, setSelectedArt] = useState(null);
+  const [artworks, setArtworks] = useState([]);
+  const [filteredArtworks, setFilteredArtworks] = useState([]);
+  const [selectedArt, setSelectedArt] = useState(null);
+  const [cart, setCart] = useState([]);
+  const [isCartOpen, setIsCartOpen] = useState(false);
+  const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+  const location = useLocation();
+  const cartFromState = location.state?.cart;
+  const [filters, setFilters] = useState({
+    size: [],
+    artist: "",
+    type: "",
+  });
 
-    // Artworks array
-    const artworks = [
-        { src: "/images/Shop1.jpeg", title: "Som vann og luft II", price: "8000,00", size: "30x30 cm (Small)" },
-        { src: "/images/Shop2.jpeg", title: "Skygge", price: "7500,00", size: "40x40 cm (Medium)" },
-        { src: "/images/Shop3.jpeg", title: "Vertikal flyt", price: "8500,00", size: "50x50 cm (Large)" },
-        { src: "/images/Shop4.jpg", title: "Mellom Brun og Ross 1", price: "9000,00", size: "60x60 cm (Large)" },
-        { src: "/images/Shop4.jpg", title: "Mellom Brun og Ross 1", price: "9000,00", size: "60x60 cm (Large)" },
-        { src: "/images/Shop4.jpg", title: "Mellom Brun og Ross 1", price: "9000,00", size: "60x60 cm (Large)" },
-        { src: "/images/Shop4.jpg", title: "Mellom Brun og Ross 1", price: "9000,00", size: "60x60 cm (Large)" }
-    ];
+  const [artistOptions, setArtistOptions] = useState([]);
+  const [typeOptions, setTypeOptions] = useState([]);
 
-    // Open modal function
-    const openModal = (art) => {
-        console.log("Opening modal for:", art.title);
-        setSelectedArt(art);
+  useEffect(() => {
+    const fetchArtworks = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/items");
+        const data = await response.json();
+        setArtworks(data);
+        setFilteredArtworks(data);
+
+        const artistMap = new Map();
+        data.forEach((item) => {
+          if (item.artist && item.artist._id) {
+            artistMap.set(item.artist._id, item.artist);
+          }
+        });
+        setArtistOptions([...artistMap.values()]);
+
+        const typeMap = new Map();
+        data.forEach((item) => {
+          if (item.type && item.type._id) {
+            typeMap.set(item.type._id, item.type);
+          }
+        });
+        setTypeOptions([...typeMap.values()]);
+      } catch (error) {
+        console.error("Failed to fetch artworks:", error);
+      }
     };
 
-    // Close modal function
-    const closeModal = () => {
-        console.log("Closing modal");
-        setSelectedArt(null);
+    fetchArtworks();
+  }, []);
+
+  useEffect(() => {
+    const applyFilters = () => {
+      let filtered = artworks;
+
+      if (searchTerm) {
+        filtered = filtered.filter((art) =>
+          art.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          art.artist?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+      }
+
+      if (filters.artist) {
+        filtered = filtered.filter((art) => art.artist?._id === filters.artist);
+      }
+
+      if (filters.type) {
+        filtered = filtered.filter((art) => art.type?._id === filters.type);
+      }
+
+      if (filters.size.length > 0) {
+        filtered = filtered.filter((art) => filters.size.includes(art.size));
+      }
+
+      setFilteredArtworks(filtered);
     };
 
-    return (
-        <div className="flex flex-col min-h-screen bg-black text-white">
-            {/* NAVIGATION */}
-            <header className="flex flex-col items-center py-6 bg-black text-white border-b border-gray-700">
-                <h1 className="text-4xl font-light">galleri edwin</h1>
-                <p className="text-sm text-gray-400 mt-2">Discover the exceptional living with art</p>
-                <nav className="flex space-x-6 mt-6">
-                    <a href="/home" className="text-gray-400 hover:text-white">Home</a>
-                    <a href="/shop" className="text-white border-b-2 border-white pb-1">Shop</a>
-                    <a href="/artists" className="text-gray-400 hover:text-white">Artist</a>
-                    <a href="/gallery" className="text-gray-400 hover:text-white">Gallery</a>
-                    <a href="/contact" className="text-gray-400 hover:text-white">Contact</a>
-                    <a href="/viamilano" className="text-gray-400 hover:text-white">Viamilano</a>
-                </nav>
-            </header>
+    applyFilters();
+  }, [searchTerm, filters, artworks]);
 
-            {/* ARTWORK SECTION */}
-            <section className="mt-16 px-6 text-center">
-                <h2 className="text-3xl font-bold">Explore Our Collection</h2>
-                <p className="text-gray-400 mt-4">
-                    Immerse yourself in a curated selection of paintings and sculptures.
-                </p>
+  const toggleSize = (size) => {
+    setFilters((prev) => {
+      const sizes = prev.size.includes(size)
+        ? prev.size.filter((s) => s !== size)
+        : [...prev.size, size];
+      return { ...prev, size: sizes };
+    });
+  };
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mt-8">
-                    {artworks.map((art, index) => (
-                        <div
-                            key={index}
-                            className="bg-[#2A2A2A] p-4 rounded-lg shadow-md cursor-pointer hover:scale-105 transition-transform"
-                            onClick={() => openModal(art)}
-                        >
-                            <img src={art.src} alt={art.title} className="w-full h-auto rounded-lg"/>
-                            <p className="text-white mt-2">{art.title}</p>
-                        </div>
-                    ))}
-                </div>
-            </section>
+  const addToCart = (item) => {
+    setCart((prevCart) => {
+      const existing = prevCart.find((i) => i._id === item._id);
+      if (existing) {
+        return prevCart.map((i) =>
+          i._id === item._id ? { ...i, quantity: i.quantity + 1 } : i
+        );
+      } else {
+        return [...prevCart, { ...item, quantity: 1 }];
+      }
+    });
+  };
 
-            {/* Modal Popup */}
-            {selectedArt && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center" onClick={closeModal}>
-                    <div
-                        className="bg-[#333] p-6 rounded-lg max-w-lg w-full relative"
-                        onClick={(e) => e.stopPropagation()}
-                    >
-                        <span className="absolute top-2 right-2 text-white text-2xl cursor-pointer" onClick={closeModal}>&times;</span>
-                        <img src={selectedArt.src} alt={selectedArt.title} className="w-full h-auto rounded-lg mb-4" />
-                        <div className="text-white">
-                            <h1 className="text-2xl font-bold">{selectedArt.title}</h1>
-                            <p className="mt-2">Unique work.<br/>Acrylic on canvas.</p>
-                            <p className="mt-2"><strong>kr {selectedArt.price}</strong></p>
-                            <hr className="my-4 border-gray-500"/>
-                            <p><strong>Dimension</strong> <br/> {selectedArt.size}</p>
-                            <hr className="my-4 border-gray-500"/>
-                            <p><strong>Year</strong> <br/> 2022</p>
-                            <div className="mt-4 flex gap-4">
-                                <button className="btn bg-[#FFD700] text-black font-bold py-2 px-4 rounded-lg hover:bg-yellow-500 transition">
-                                    Buy now
-                                </button>
-                                <button className="btn bg-[#FFD700] text-black font-bold py-2 px-4 rounded-lg hover:bg-yellow-500 transition">
-                                    Add to cart
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            )}
-
-            {/* FOOTER */}
-            <footer className="mt-auto text-center py-8 text-gray-500 bg-black border-t border-gray-700">
-                <p>&copy; 2025 Galleri Edwin. All Rights Reserved.</p>
-            </footer>
-        </div>
+  const updateQuantity = (id, change) => {
+    setCart((prevCart) =>
+      prevCart.map((item) =>
+        item._id === id
+          ? { ...item, quantity: Math.max(1, item.quantity + change) }
+          : item
+      )
     );
+  };
+
+  const removeFromCart = (id) => {
+    setCart((prevCart) => prevCart.filter((item) => item._id !== id));
+  };
+
+  useEffect(() => {
+    const savedCart = JSON.parse(localStorage.getItem("cart"));
+    if (savedCart) {
+      setCart(savedCart);
+    }
+  }, []);
+  
+  useEffect(() => {
+    localStorage.setItem("cart", JSON.stringify(cart));
+  }, [cart]);
+
+  useEffect(() => {
+    if (location.state?.cart) {
+      setCart(location.state.cart);
+    }
+  }, [location.state]);
+
+  return (
+    <div>
+      <main>
+        {/* FILTER */}
+        <aside className="filter">
+          <h3>Filter by</h3>
+          <div>
+            <h4>Artist</h4>
+            <select
+              value={filters.artist}
+              onChange={(e) => setFilters({ ...filters, artist: e.target.value })}
+            >
+              <option value="">All</option>
+              {artistOptions.map((artist) => (
+                <option key={artist._id} value={artist._id}>
+                  {artist.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <h4>Category</h4>
+            <select
+              value={filters.type}
+              onChange={(e) => setFilters({ ...filters, type: e.target.value })}
+            >
+              <option value="">All</option>
+              {typeOptions.map((type) => (
+                <option key={type._id} value={type._id}>
+                  {type.name}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div>
+            <h4>Size</h4>
+            {["Small", "Medium", "Large"].map((size) => (
+              <label key={size}>
+                <input
+                  type="checkbox"
+                  checked={filters.size.includes(size)}
+                  onChange={() => toggleSize(size)}
+                />{" "}
+                {size}
+              </label>
+            ))}
+          </div>
+        </aside>
+
+        {/* SHOP CONTENT */}
+        <div style={{ flexGrow: 1 }}>
+        <div className="shop-header">
+  <div className="shop-header-row">
+    <div className="shop-header-left">
+      <h2>All Products</h2>
+      <p className="product-count">
+        {filteredArtworks.length} product{filteredArtworks.length !== 1 && "s"}
+      </p>
+    </div>
+
+    <div className="shop-header-center">
+      <input
+        type="text"
+        className="search-input"
+        placeholder="Search by title or artist..."
+        value={searchTerm}
+        onChange={(e) => setSearchTerm(e.target.value)}
+      />
+    </div>
+
+    <div className="shop-header-right">
+      <button className="cart-toggle" onClick={() => setIsCartOpen(true)}>
+        🛒 Cart ({cart.length})
+      </button>
+    </div>
+  </div>
+</div>
+
+          <section className="shop">
+            {filteredArtworks.map((art, index) => (
+              <div
+                key={index}
+                className="art-card"
+                onClick={() => openModal(art, setSelectedArt)}
+              >
+                <img src={art.imageUrl} alt={art.title} />
+                <h3>{art.title}</h3>
+                <p>kr {Number(art.price).toLocaleString("no-NO")},00</p>
+              </div>
+            ))}
+          </section>
+        </div>
+      </main>
+
+      {/* POPUP MODAL */}
+      {selectedArt && (
+        <div className="popup">
+          <div className="popup-content">
+            <div className="popup-image">
+              <img src={selectedArt.imageUrl} alt={selectedArt.title} />
+            </div>
+
+            <div className="popup-details">
+              <span className="close" onClick={() => closeModal(setSelectedArt)}>
+                &times;
+              </span>
+              <h2>{selectedArt.title}</h2>
+              <p className="price">
+                kr {Number(selectedArt.price).toLocaleString("no-NO")},00
+              </p>
+              <label className="qty-label">Quantity *</label>
+              <div className="quantity-controls">
+                <button disabled>-</button>
+                <input type="number" value={1} readOnly />
+                <button disabled>+</button>
+              </div>
+              <div className="meta">
+                <h4>Artist</h4>
+              {selectedArt.artist?.name && (
+              <p className="artist-name">{selectedArt.artist.name}</p>
+              )}
+                <div>
+                  <h4>Dimension</h4>
+                  <p>{selectedArt.size} cm</p>
+                </div>
+                <div>
+                  <h4>Year</h4>
+                  <p>{selectedArt.year || "Unknown"}</p>
+                </div>
+              </div>
+              <button
+                className="add-to-cart"
+                onClick={() => {
+                  addToCart(selectedArt);
+                  closeModal(setSelectedArt);
+                }}
+              >
+                Add to Cart
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CART DRAWER */}
+      {isCartOpen && (
+        <div className="cart-drawer">
+          <div className="cart-header">
+            <h3>Cart ({cart.length} item{cart.length !== 1 && "s"})</h3>
+            <button onClick={() => setIsCartOpen(false)} className="cart-close">
+              &times;
+            </button>
+          </div>
+          <div className="cart-body">
+            {cart.length === 0 ? (
+              <p>Your cart is empty.</p>
+            ) : (
+              <ul>
+                {cart.map((item) => (
+                 <li key={item._id} className="cart-item">
+                 <img src={item.imageUrl} alt={item.title} className="cart-thumb" />
+               
+                 <div className="cart-item-info">
+                   <strong>{item.title}</strong>
+                   <div>
+                   </div>
+                   <button onClick={() => removeFromCart(item._id)} className="remove-btn">
+                     Remove
+                   </button>
+                 </div>
+               </li>
+                ))}
+              </ul>
+            )}
+          </div>
+          {cart.length > 0 && (
+      <div className="cart-footer">
+        <p className="cart-total">
+          Total: kr{" "}
+          {cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString("no-NO")},00
+        </p>
+        <button
+  className="checkout-btn"
+  onClick={() => navigate("/order-summary", { state: { cart } })}
+>
+  Proceed to Checkout
+</button>
+      </div>
+    )}
+
+
+        </div>
+      )}
+    </div>
+  );
 };
 
 export default Shop;

@@ -1,0 +1,204 @@
+body {
+    background-color: white;
+  }
+  
+  .back-btn-top {
+    background: #eee;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 10px 16px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    color: #111;
+    z-index: 1000;
+  }
+  
+  .back-btn-top:hover {
+    background: #ddd;
+  }
+
+  .order-summary {
+    padding: 40px 20px;
+    max-width: 900px;
+    margin: 0 auto;
+    font-family: sans-serif;
+    color: #222;
+  }
+
+  .order-summary-header {
+    display: flex;
+    width: 60%;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+  }
+  
+  .back-arrow {
+    font-size: 1.4rem;
+    background: none;
+    border: none;
+    color: #111;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    margin: 0;
+    display: flex;
+    align-items: center;
+    transform: translateY(-10px);
+  }
+  
+  .back-arrow:hover {
+    color: #333;
+  }
+  
+  
+  .order-summary h2 {
+    margin: 0;
+    font-size: 1.5rem;
+  }
+  
+  
+  .order-summary.empty {
+    text-align: center;
+  }
+  
+  .order-summary h2 {
+    margin: 0 0 20px 0;
+    font-size: 1.5rem;
+    text-align: center;
+  }
+  
+  .summary-list {
+    list-style: none;
+    padding: 0;
+    margin: 30px 0;
+    border-top: 1px solid #ddd;
+  }
+  
+  .summary-item {
+    display: flex;
+    align-items: center;
+    padding: 16px 0;
+    border-bottom: 1px solid #eee;
+    gap: 0px;
+  }
+  
+  .summary-thumb {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
+    flex-shrink: 0;
+  }
+  
+  .summary-info {
+    flex: 1;
+  }
+  
+  .summary-item h4 {
+    margin: 0 0 4px;
+  }
+  
+  .summary-total {
+    margin: 30px 0 20px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    color: #222;
+  }
+  
+  .remove-summary {
+    margin-top: 8px;
+    padding: 4px 8px;
+    color: #c00;
+    font-size: 0.85rem;
+    border-radius: 4px;
+    cursor: pointer;
+    background: none;
+    border: none;
+  }
+  
+  .remove-summary:hover {
+    background-color: #fdd;
+  }
+  
+  .undo-section {
+    margin-top: 10px;
+    background: #fff5f5;
+    border: 1px solid #fcc;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+  }
+  
+  .undo-btn {
+    margin-top: 5px;
+    padding: 6px 10px;
+    background: white;
+    border: 1px solid #c00;
+    color: #c00;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  
+  .undo-btn:hover {
+    background: #ffeaea;
+  }
+  
+  .summary-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+   
+  .clear-btn, .confirm-btn {
+    flex: 1;
+    padding: 12px;
+    background: #eee;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-weight: bold;
+    font-size: 1rem;
+    cursor: pointer;
+    text-align: center;
+  }
+  
+  .clear-btn:hover {
+    background: #ddd;
+  }
+  
+  .confirm-btn {
+    background: black;
+    color: white;
+    border: none;
+    transition: background 0.2s ease;
+  }
+  
+  .confirm-btn:hover {
+    background: #222;
+  }
+
+  .undo-section {
+    margin-top: 10px;
+    background: #fff5f5;
+    border: 1px solid #fcc;
+    padding: 10px;
+    border-radius: 4px;
+    text-align: center;
+  }
+  
+  .undo-btn {
+    margin-top: 5px;
+    padding: 6px 10px;
+    background: white;
+    border: 1px solid #c00;
+    color: #c00;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+  }
+  .undo-btn:hover {
+    background: #ffeaea;
+  }

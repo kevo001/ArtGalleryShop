@@ -24,6 +24,25 @@ router.get('/orders', async (req, res) => {
   }
 });
 
+// Update an order
+router.put('/orders/:id', async (req, res) => {
+  try {
+    const updatedOrder = await Order.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      { new: true, runValidators: true }
+    );
+    
+    if (!updatedOrder) {
+      return res.status(404).json({ message: 'Order not found' });
+    }
+
+    res.json(updatedOrder);
+  } catch (error) {
+    res.status(400).json({ error: error.message });
+  }
+});
+
 // Delete an order
 router.delete('/orders/:id', async (req, res) => {
   try {

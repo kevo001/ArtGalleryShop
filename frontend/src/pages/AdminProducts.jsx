@@ -199,7 +199,7 @@ const AdminProducts = () => {
 
             <section className="mt-8 max-w-7xl mx-auto px-4">
                 {/* FILTERS & CREATE */}
-                <section className="mb-4"> 
+                <section className="mb-4">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center space-x-3">
                             <select
