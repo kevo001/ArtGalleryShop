@@ -4,7 +4,7 @@ const Home = () => {
   return (
     <div className="flex flex-col min-h-screen bg-black text-white">
       {/* NAVIGATION */}
-      <header className="flex flex-col items-center py-6 bg-black text-white border-b border-gray-700">
+       <header className="flex flex-col items-center py-6 bg-black text-white border-b border-gray-700">
         <h1 className="text-4xl font-light">galleri edwin</h1>
         <p className="text-sm text-gray-400 mt-2">Discover the exceptional living with art</p>
         <nav className="flex space-x-6 mt-6">
@@ -15,6 +15,14 @@ const Home = () => {
           <a href="/contact" className="text-gray-400 hover:text-white">Contact</a>
           <a href="/viamilano" className="text-gray-400 hover:text-white">Viamilano</a>
         </nav>
+
+        {/* Sign In Button*/}
+        <Link 
+          to="/signin" // Link to Sign-In page
+          className="text-white bg-blue-500 px-4 py-2 rounded-lg hover:bg-blue-400 ml-6"
+          >
+            Sign In 
+          </Link>
       </header>
 
       {/* HERO SECTION */}
