@@ -101,7 +101,7 @@ const AdminDashboard = () => {
 
         {/* RECENT ORDERS */}
         <section className="mt-12 max-w-5xl mx-auto px-26">
-          <h2 className="text-2xl font-bold mb-4">Siste Ordrer</h2>
+          <h2 className="text-2xl font-bold mb-4">Siste Ordre</h2>
           <div className="bg-gray-800 rounded-lg shadow-md overflow-hidden">
             <table className="w-full text-left bg-[#2A2A2A] shadow-lg rounded-lg">
               <thead className="bg-[#333333] text-[#F5F5F5]">
