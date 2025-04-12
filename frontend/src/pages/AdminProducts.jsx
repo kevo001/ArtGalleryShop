@@ -9,6 +9,8 @@ const AdminProducts = () => {
     const [activeCategory, setActiveCategory] = useState("");
     const [isCategoryModalOpen, setIsCategoryModalOpen] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState("");
+    const [isDeleteCategoryModalOpen, setIsDeleteCategoryModalOpen] = useState(false);
+    const [selectedCategoryToDelete, setSelectedCategoryToDelete] = useState('');
 
     const [newProduct, setNewProduct] = useState({
         title: "", description: "", price: "", imageUrl: "", size: "", category: "", artistId: ""
@@ -113,6 +115,88 @@ const AdminProducts = () => {
         }
     };
 
+    // Handle category deletion
+    const handleDeleteCategory = async () => {
+        if (!selectedCategoryToDelete) return;
+
+        const confirmDelete = window.confirm("Er du sikker på at du vil slette denne kategorien?");
+        if (!confirmDelete) return;
+
+        try {
+            const res = await fetch(`http://localhost:5000/api/categories/${selectedCategoryToDelete}`, {
+                method: "DELETE",
+            });
+
+            if (res.ok) {
+                // Refresh category list
+                const updated = await fetch("http://localhost:5000/api/categories");
+                const data = await updated.json();
+                setCategories(data);
+
+                // Clear and close modal
+                setSelectedCategoryToDelete("");
+                setIsDeleteCategoryModalOpen(false);
+            } else {
+                alert("Noe gikk galt under sletting av kategorien.");
+            }
+        } catch (err) {
+            console.error("Feil ved sletting av kategori:", err);
+        }
+    };
+
+    // Handle product update
+const handleUpdateProduct = async () => {
+    const { title, description, price, imageUrl, size, category, artistId, ...rest } = newProduct;
+
+    if (!title || !description || !price || !imageUrl || !size || !category || !artistId) {
+        alert("Alle felt må fylles ut.");
+        return;
+    }
+
+    try {
+        const res = await fetch(`http://localhost:5000/api/items/${selectedProduct._id}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                ...rest,
+                title,
+                description,
+                price,
+                imageUrl,
+                size,
+                category,
+                artist: artistId, // ✅ Correctly assign artistId to the backend 'artist' field
+            }),
+        });
+
+        if (res.ok) {
+            const updated = await fetch("http://localhost:5000/api/items");
+            const data = await updated.json();
+            setProducts(data);
+
+            // ✅ Clear modal and selection
+            setIsModalOpen(false);
+            setSelectedProduct(null);
+            setNewProduct({
+                title: "",
+                description: "",
+                price: "",
+                imageUrl: "",
+                size: "",
+                category: "",
+                artistId: ""
+            });
+        } else {
+            alert("Noe gikk galt under oppdatering av produktet.");
+        }
+    } catch (err) {
+        console.error("Feil ved oppdatering:", err);
+    }
+};
+
+
     return (
         <div className="flex flex-col min-h-screen bg-[#1A1A1A] text-white">
             {/* NAVIGATION */}
@@ -197,13 +281,13 @@ const AdminProducts = () => {
             )}
 
 
-            <section className="mt-8 max-w-7xl mx-auto px-4">
+            <section className="mt-8 max-w-7xl mx-auto px-4 pb-4">
                 {/* FILTERS & CREATE */}
                 <section className="mb-4">
                     <div className="flex justify-between items-center">
                         <div className="flex items-center space-x-3">
                             <select
-                                className="bg-[#2A2A2A] text-white px-3 py-2 rounded-lg border border-[#444] cursor-pointer hover:border-[#FFD700] transition duration-300"
+                                className="bg-[#2A2A2A] text-white px-3 py-2 h-[40px] rounded-lg border border-[#444] cursor-pointer hover:border-[#FFD700] transition duration-300"
                                 value={activeCategory}
                                 onChange={(e) => setActiveCategory(e.target.value)}
                             >
@@ -214,11 +298,19 @@ const AdminProducts = () => {
                             </select>
                             <button
                                 onClick={() => setIsCategoryModalOpen(true)}
-                                className="bg-[#2A2A2A] text-white px-3 py-2 rounded-lg border border-[#444] cursor-pointer hover:border-[#FFD700] transition duration-300"
+                                className="bg-[#2A2A2A] text-white w-[40px] h-[40px] text-lg flex items-center justify-center rounded-lg border border-[#444] cursor-pointer hover:border-[#FFD700] transition duration-300"
                                 title="Ny kategori"
                             >
                                 +
                             </button>
+                            <button
+                                onClick={() => setIsDeleteCategoryModalOpen(true)}
+                                className="bg-[#2A2A2A] text-white w-[40px] h-[40px] text-lg flex items-center justify-center rounded-lg border border-[#444] cursor-pointer hover:border-[#FFD700] transition duration-300"
+                                title="Slett kategori"
+                            >
+                                -
+                            </button>
+
                         </div>
                         <div className="flex space-x-4">
 
@@ -242,12 +334,12 @@ const AdminProducts = () => {
                                 onClick={() => setSelectedProduct(product)}
                                 className="cursor-pointer w-[230px] rounded-2xl bg-[#2A2A2A] overflow-hidden shadow-md border-2 border-[#2A2A2A] hover:border-[#FFD700] transition-all duration-300 transform hover:-translate-y-1"
                             >
-                                <div className="h-[160px] bg-[#2A2A2A] flex items-center justify-center overflow-hidden p-2">
+                                <div className="bg-[#2A2A2A] flex items-center justify-center overflow-hidden">
                                     {product.imageUrl ? (
                                         <img
                                             src={product.imageUrl}
                                             alt={product.title}
-                                            className="h-full w-full object-cover"
+                                            className="w-[250px] h-[250px] object-cover rounded px-2 py-2"
                                         />
                                     ) : (
                                         <p className="text-sm text-gray-500">Bilde kommer</p>
@@ -261,6 +353,40 @@ const AdminProducts = () => {
                         ))}
                 </div>
             </section>
+
+            {/* DELETE CATEGORY MODAL */}
+            {isDeleteCategoryModalOpen && (
+                <div className="fixed inset-0 flex items-center justify-center bg-black/50 z-50">
+                    <div className="bg-[#2A2A2A] p-6 rounded-lg shadow-lg w-80 relative">
+                        <button
+                            className="absolute top-2 right-3 text-gray-400 hover:text-white text-2xl"
+                            onClick={() => setIsDeleteCategoryModalOpen(false)}
+                        >
+                            &times;
+                        </button>
+                        <h2 className="text-xl font-semibold text-white mb-4 text-center">Slett kategori</h2>
+                        <select
+                            className="w-full p-2 mb-4 bg-[#1A1A1A] text-white rounded border border-gray-600 focus:border-[#FFD700] outline-none"
+                            value={selectedCategoryToDelete}
+                            onChange={(e) => setSelectedCategoryToDelete(e.target.value)}
+                        >
+                            <option value="">Velg kategori</option>
+                            {categories.map((cat) => (
+                                <option key={cat._id} value={cat._id}>{cat.name}</option>
+                            ))}
+                        </select>
+                        <div className="flex justify-between">
+                            <button
+                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold w-full disabled:opacity-50"
+                                onClick={handleDeleteCategory}
+                                disabled={!selectedCategoryToDelete}
+                            >
+                                Slett
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* PRODUCT DETAILS MODAL */}
             {selectedProduct && (
@@ -290,6 +416,27 @@ const AdminProducts = () => {
                             <p className="text-sm text-gray-300 mb-3"><span className="font-semibold text-white">Kunstner:</span> {selectedProduct.artist.name}</p>
                         )}
                         <div className="flex justify-end mt-4">
+                            <button
+                                onClick={() => {
+                                    setNewProduct({
+                                        title: selectedProduct.title,
+                                        description: selectedProduct.description,
+                                        price: selectedProduct.price,
+                                        imageUrl: selectedProduct.imageUrl,
+                                        size: selectedProduct.size,
+                                        category: selectedProduct.category,
+                                        artistId:
+                                            typeof selectedProduct.artist === "string"
+                                                ? selectedProduct.artist
+                                                : selectedProduct.artist?._id || selectedProduct.artistId || "",
+                                    });
+                                    setIsModalOpen(true);
+                                }}
+                                className="bg-[#FFD700] hover:bg-[#ffbb00] text-black px-4 py-2 rounded-lg font-semibold cursor-pointer mr-2"
+                            >
+                                Rediger
+                            </button>
+
                             <button
                                 onClick={handleDelete}
                                 className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold cursor-pointer"
@@ -361,7 +508,7 @@ const AdminProducts = () => {
                         <div className="flex justify-between mt-6">
                             <button
                                 className="bg-[#FFD700] hover:bg-[#ffbb00] text-black px-4 py-2 rounded-lg font-semibold w-1/2 mr-2 cursor-pointer"
-                                onClick={handleSubmit}
+                                onClick={selectedProduct ? handleUpdateProduct : handleSubmit}
                             >
                                 Legg til
                             </button>
