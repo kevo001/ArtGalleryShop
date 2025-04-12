@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";  // Make sure you have react-router-dom installed
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({ items: 0, orders: 0, artists: 0 });
@@ -9,7 +10,6 @@ const AdminDashboard = () => {
     fetch("http://localhost:5000/api/items")
       .then((res) => res.json())
       .then((data) => {
-        console.log("Items fetched:", data); // Debugging
         setStats((prev) => ({ ...prev, items: data.length }));
       })
       .catch((error) => console.error("Error fetching items:", error));
@@ -18,7 +18,6 @@ const AdminDashboard = () => {
     fetch("http://localhost:5000/api/artists")
       .then((res) => res.json())
       .then((data) => {
-        console.log("Artists fetched:", data); // Debugging
         setStats((prev) => ({ ...prev, artists: data.length }));
       })
       .catch((error) => console.error("Error fetching artists:", error));
@@ -27,9 +26,8 @@ const AdminDashboard = () => {
     fetch("http://localhost:5000/api/orders")
       .then((res) => res.json())
       .then((data) => {
-        console.log("Orders fetched:", data); // Debugging
         setStats((prev) => ({ ...prev, orders: data.length }));
-        setOrders(data); // Save orders to state
+        setOrders(data);
       })
       .catch((error) => console.error("Error fetching orders:", error));
   }, []);
@@ -38,37 +36,34 @@ const AdminDashboard = () => {
     <div className="flex flex-col min-h-screen bg-[#1A1A1A] text-white">
       {/* NAVIGATION */}
       <nav className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-[#282828] to-[#3E3E3E] drop-shadow-lg">
-        {/* Logo Section */}
         <div>
-          < h1 className="text-2xl font-bold text-[#F5F5F5]">galleri edwin</h1>
+          <h1 className="text-2xl font-bold text-[#F5F5F5]">galleri edwin</h1>
           <p className="text-[#CCCCCC] text-sm">Discover the exceptional living with art</p>
         </div>
-
-        {/* Navigation Links */}
         <ul className="flex space-x-6">
           <li className="relative group">
-            <a href="/admin" className="text-[#FFD700] hover:text-[#FFD700] transition duration-300">
+            <Link to="/admin" className="text-[#FFD700] hover:text-[#FFD700] transition duration-300">
               Home
               <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
-            </a>
+            </Link>
           </li>
           <li className="relative group">
-            <a href="/admin/order-history" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
+            <Link to="/admin/order-history" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
               Orders
               <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
-            </a>
+            </Link>
           </li>
           <li className="relative group">
-            <a href="/admin/products" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
+            <Link to="/admin/products" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
               Products
               <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
-            </a>
+            </Link>
           </li>
           <li className="relative group">
-            <a href="/admin/artists" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
+            <Link to="/admin/artists" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
               Artists
               <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
-            </a>
+            </Link>
           </li>
           <li className="relative group">
             <a href="#" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
@@ -80,28 +75,28 @@ const AdminDashboard = () => {
       </nav>
 
       {/* CONTENT */}
-      
-        {/* HEADER */}
-        <header className="bg-gradient-to-r from-[#444] to-[#2F2F2F] text-center py-10 shadow-lg">
-          <h1 className="text-4xl font-bold text-white">Velkommen til Adminpanelet</h1>
-          <p className="text-gray-300 mt-2">Oppdater, administrer og overvåk innholdet på galleri edwin</p>
-        </header>
+      <header className="bg-gradient-to-r from-[#444] to-[#2F2F2F] text-center py-10 shadow-lg">
+        <h1 className="text-4xl font-bold text-white">Velkommen til Adminpanelet</h1>
+        <p className="text-gray-300 mt-2">Oppdater, administrer og overvåk innholdet på galleri edwin</p>
+      </header>
 
-        {/* STAT CARDS */}
-        <div className="flex-grow">
+      {/* STAT CARDS */}
+      <div className="flex-grow">
         <section className="flex justify-center gap-6 mt-8 max-w-5xl mx-auto">
-          <div className="bg-[#2A2A2A] p-6 rounded-lg text-center shadow-md w-64">
+          <Link to="/admin/products" className="bg-[#2A2A2A] p-6 rounded-lg text-center shadow-md w-64 hover:bg-[#333] transition">
             <h2 className="text-lg text-[#FFD700] font-semibold">Aktive Produkter</h2>
             <p className="text-2xl font-bold">{stats.items}</p>
-          </div>
-          <div className="bg-[#2A2A2A] p-6 rounded-lg text-center shadow-md w-64">
+          </Link>
+
+          <Link to="/admin/order-history" className="bg-[#2A2A2A] p-6 rounded-lg text-center shadow-md w-64 hover:bg-[#333] transition">
             <h2 className="text-lg text-[#FFD700] font-semibold">Antall Ordrer</h2>
             <p className="text-2xl font-bold">{stats.orders}</p>
-          </div>
-          <div className="bg-[#2A2A2A] p-6 rounded-lg text-center shadow-md w-64">
+          </Link>
+
+          <Link to="/admin/artists" className="bg-[#2A2A2A] p-6 rounded-lg text-center shadow-md w-64 hover:bg-[#333] transition">
             <h2 className="text-lg text-[#FFD700] font-semibold">Antall Kunstnere</h2>
             <p className="text-2xl font-bold">{stats.artists}</p>
-          </div>
+          </Link>
         </section>
 
         {/* RECENT ORDERS */}
