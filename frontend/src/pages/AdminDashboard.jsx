@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";  // Make sure you have react-router-dom installed
+import { Link } from "react-router-dom";
 
 const AdminDashboard = () => {
   const [stats, setStats] = useState({ items: 0, orders: 0, artists: 0 });

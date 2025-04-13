@@ -6,7 +6,23 @@ const router = express.Router();
 // Create a new order
 router.post('/orders', async (req, res) => {
   try {
-    const newOrder = new Order(req.body);
+    // Generate order number (e.g. ORD-20250413-xyz)
+    const dateCode = new Date().toISOString().split("T")[0].replace(/-/g, "");
+    const orderNumber = `ORD-${dateCode}-${Math.floor(Math.random() * 1000)}`;
+
+    // Generate today's date in DD.MM.YYYY format
+    const now = new Date();
+    const day = String(now.getDate()).padStart(2, '0');
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const year = now.getFullYear();
+    const date = `${day}.${month}.${year}`;
+
+    const newOrder = new Order({
+      ...req.body,
+      orderNumber,
+      date, // override any incoming date
+    });
+
     await newOrder.save();
     res.status(201).json(newOrder);
   } catch (error) {
