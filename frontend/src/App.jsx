@@ -12,7 +12,7 @@ import OrderSummary from "./pages/OrderSummary";
 
 function Layout() {
   const location = useLocation();
-  const hideNavbar = location.pathname.startsWith("/admin", "/Admin");
+  const hideNavbar = /^\/admin/i.test(location.pathname); // Regex to check if the path starts with "/admin"
 
   return (
     <>
