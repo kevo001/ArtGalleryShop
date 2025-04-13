@@ -270,7 +270,7 @@ const handleUpdateProduct = async () => {
                         />
                         <div className="flex justify-between">
                             <button
-                                className="bg-[#FFD700] text-black px-4 py-2 rounded-lg font-semibold w-full hover:bg-[#ffbb00]"
+                                className="cursor-pointer bg-[#FFD700] text-black px-4 py-2 rounded-lg font-semibold w-full hover:bg-[#ffbb00]"
                                 onClick={handleCreateCategory}
                             >
                                 Opprett
@@ -377,7 +377,7 @@ const handleUpdateProduct = async () => {
                         </select>
                         <div className="flex justify-between">
                             <button
-                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold w-full disabled:opacity-50"
+                                className="cursor-pointer bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold w-full disabled:opacity-50"
                                 onClick={handleDeleteCategory}
                                 disabled={!selectedCategoryToDelete}
                             >

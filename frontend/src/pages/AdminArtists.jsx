@@ -63,7 +63,7 @@ const AdminArtists = () => {
             <section className="mt-6 max-w-6xl mx-auto w-full px-4">
                 <div className="flex justify-end">
                     <button
-                        className="bg-[#FFD700] text-black px-4 py-2 rounded-lg font-semibold"
+                        className="cursor-pointer bg-[#FFD700] text-black px-4 py-2 rounded-lg font-semibold"
                         onClick={() => setIsModalOpen(true)}
                     >
                         Create New
@@ -100,8 +100,8 @@ const AdminArtists = () => {
                         <label className="block text-[#F5F5F5] mb-1">Bilde-URL</label>
                         <input type="text" name="imageUrl" className="w-full p-2 mb-3 bg-[#1A1A1A] text-white rounded border border-gray-600" value={newArtist.imageUrl} onChange={handleChange} />
                         <div className="flex justify-between mt-4">
-                            <button className="bg-[#FFD700] text-black px-4 py-2 rounded-lg font-semibold w-1/2 mr-2" onClick={handleSubmit}>Legg til</button>
-                            <button className="bg-[#FFD700] text-black px-4 py-2 rounded-lg font-semibold w-1/2 ml-2" onClick={() => setIsModalOpen(false)}>Avbryt</button>
+                            <button className="cursor-pointer bg-[#FFD700] text-black px-4 py-2 rounded-lg font-semibold w-1/2 mr-2" onClick={handleSubmit}>Legg til</button>
+                            <button className="cursor-pointer bg-[#FFD700] text-black px-4 py-2 rounded-lg font-semibold w-1/2 ml-2" onClick={() => setIsModalOpen(false)}>Avbryt</button>
                         </div>
                     </div>
                 </div>
@@ -121,7 +121,7 @@ const AdminArtists = () => {
                         <input type="text" name="imageUrl" value={selectedArtist.imageUrl} onChange={(e) => setSelectedArtist({ ...selectedArtist, imageUrl: e.target.value })} className="w-full p-2 mb-3 bg-[#1A1A1A] text-white rounded border border-gray-600" />
                         <img src={selectedArtist.imageUrl} alt="Preview" className="w-full h-40 object-cover rounded mb-4" />
                         <div className="flex justify-between mt-4">
-                            <button className="bg-[#FFD700] text-black px-4 py-2 rounded-lg font-semibold w-1/2 mr-2"
+                            <button className="cursor-pointer bg-[#FFD700] text-black px-4 py-2 rounded-lg font-semibold w-1/2 mr-2"
                                 onClick={async () => {
                                     try {
                                         const res = await fetch(`http://localhost:5000/api/artists/${selectedArtist._id}`, {
@@ -139,11 +139,11 @@ const AdminArtists = () => {
                                     }
                                 }}
                             >Lagre</button>
-                            <button className="bg-[#FFD700] text-black px-4 py-2 rounded-lg font-semibold w-1/2 ml-2" onClick={() => setSelectedArtist(null)}>Avbryt</button>
+                            <button className="cursor-pointer bg-[#FFD700] text-black px-4 py-2 rounded-lg font-semibold w-1/2 ml-2" onClick={() => setSelectedArtist(null)}>Avbryt</button>
                         </div>
                         <div className="flex justify-center mt-6">
                             <button
-                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold"
+                                className="cursor-pointer bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold"
                                 onClick={async () => {
                                     const confirmed = confirm("Er du sikker på at du vil slette denne kunstneren?");
                                     if (!confirmed) return;
