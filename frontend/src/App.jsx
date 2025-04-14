@@ -9,10 +9,11 @@ import Artists from "./pages/Artists";
 import AdminOrderHistory from "./pages/AdminOrderHistory";
 import AdminArtists from "./pages/AdminArtists";
 import OrderSummary from "./pages/OrderSummary";
+import ContactPage from "./pages/Contact";
 
 function Layout() {
   const location = useLocation();
-  const hideNavbar = location.pathname.startsWith("/admin", "/Admin");
+  const hideNavbar = location.pathname.startsWith("/admin");
 
   return (
     <>
@@ -26,6 +27,7 @@ function Layout() {
         <Route path="/" element={<Home />} />
         <Route path="/artists" element={<Artists />} />
         <Route path="/order-summary" element={<OrderSummary />} />
+        <Route path="/contact" element={<ContactPage />} />
       </Routes>
     </>
   );
