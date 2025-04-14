@@ -6,7 +6,7 @@ const OrderSummary = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const initialCart = location.state?.cart || [];
-  
+
   const [cart, setCart] = useState(initialCart);
   const [lastRemoved, setLastRemoved] = useState(null);
   const [lastCleared, setLastCleared] = useState(null);
@@ -34,8 +34,8 @@ const OrderSummary = () => {
 
   const undoClearAll = () => {
     if (lastCleared) {
-      setCart(lastCleared); 
-      setLastCleared(null); 
+      setCart(lastCleared);
+      setLastCleared(null);
     }
   };
 
@@ -44,39 +44,44 @@ const OrderSummary = () => {
       <div className="order-summary empty">
         <h2>Your order is empty.</h2>
         <button className="back-btn-top" onClick={() => navigate("/shop")}>
-        ← Back to Shop
-      </button>
+          ← Back to Shop
+        </button>
         {lastRemoved && (
           <button className="undo-btn" onClick={undoRemove}>
             Undo Remove
           </button>
         )}
 
-    {lastCleared && (
-    <div className="undo-section">
-      <p>All items removed.</p>
-      <button className="undo-btn" onClick={undoClearAll}>
-        Undo Clear All
-      </button>
-    </div>
-    )}
+        {lastCleared && (
+          <div className="undo-section">
+            <p>All items removed.</p>
+            <button className="undo-btn" onClick={undoClearAll}>
+              Undo Clear All
+            </button>
+          </div>
+        )}
       </div>
     );
   }
 
   return (
-      <div className="order-summary">
-        <div className="order-summary-header">
-     <button className="back-arrow" onClick={() => navigate("/shop", {state: {cart} })}>
-     ←
-    </button>
-    <h2>Order Summary</h2>
-</div>
-        <div className="order-summary-wrapper">
+    <div className="order-summary">
+      <div className="order-summary-header">
+        <button className="back-arrow" onClick={() => navigate("/shop", { state: { cart } })}>
+          ←
+        </button>
+        <h2>Order Summary</h2>
+      </div>
+
+      <div className="order-summary-wrapper">
         <ul className="summary-list">
           {cart.map((item) => (
             <li key={item._id} className="summary-item">
-              <img src={item.imageUrl} alt={item.title} className="summary-thumb" />
+              <img
+                src={`http://localhost:5000${item.imageUrl}`}
+                alt={item.title}
+                className="summary-thumb"
+              />
               <div className="summary-info">
                 <h4>{item.title}</h4>
                 <p>Quantity: {item.quantity}</p>
@@ -88,7 +93,7 @@ const OrderSummary = () => {
             </li>
           ))}
         </ul>
-  
+
         {lastRemoved && (
           <div className="undo-section">
             <p>Item removed.</p>
@@ -98,11 +103,10 @@ const OrderSummary = () => {
           </div>
         )}
 
-  
         <div className="summary-total">
           <h3>Total: kr {total.toLocaleString("no-NO")},00</h3>
         </div>
-  
+
         <div className="summary-actions">
           <button className="clear-btn" onClick={clearAll}>
             Clear All
@@ -114,7 +118,6 @@ const OrderSummary = () => {
       </div>
     </div>
   );
-  
-};  
+};
 
 export default OrderSummary;

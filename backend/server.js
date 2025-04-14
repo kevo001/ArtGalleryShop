@@ -1,7 +1,7 @@
-// backend/server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 require('dotenv').config();
 
 const app = express();
@@ -9,6 +9,9 @@ const app = express();
 // Middleware
 app.use(cors());
 app.use(express.json());
+
+// ✅ Serve uploaded images
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 // Routes
 const itemRoutes = require('./routes/ItemRoutes');
@@ -33,7 +36,6 @@ mongoose.connect(process.env.MONGO_URI, {
 
 // Basic route
 app.get('/', (req, res) => res.send('API is running'));
-
 
 // Start the server
 const PORT = process.env.PORT || 5000;

@@ -1,3 +1,4 @@
+// imports unchanged
 import { useEffect, useState } from "react";
 import { openModal, closeModal } from "../scripts/shopScripts";
 import "../styles/Shop.css";
@@ -12,12 +13,7 @@ const Shop = () => {
   const navigate = useNavigate();
   const [searchTerm, setSearchTerm] = useState("");
   const location = useLocation();
-  const cartFromState = location.state?.cart;
-  const [filters, setFilters] = useState({
-    size: [],
-    artist: "",
-    type: "",
-  });
+  const [filters, setFilters] = useState({ size: [], artist: "", type: "" });
 
   const [artistOptions, setArtistOptions] = useState([]);
   const [typeOptions, setTypeOptions] = useState([]);
@@ -124,7 +120,7 @@ const Shop = () => {
       setCart(savedCart);
     }
   }, []);
-  
+
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
@@ -138,7 +134,7 @@ const Shop = () => {
   return (
     <div>
       <main>
-        {/* FILTER */}
+        {/* FILTERS */}
         <aside className="filter">
           <h3>Filter by</h3>
           <div>
@@ -186,34 +182,32 @@ const Shop = () => {
           </div>
         </aside>
 
-        {/* SHOP CONTENT */}
+        {/* SHOP HEADER + PRODUCTS */}
         <div style={{ flexGrow: 1 }}>
-        <div className="shop-header">
-  <div className="shop-header-row">
-    <div className="shop-header-left">
-      <h2>All Products</h2>
-      <p className="product-count">
-        {filteredArtworks.length} product{filteredArtworks.length !== 1 && "s"}
-      </p>
-    </div>
-
-    <div className="shop-header-center">
-      <input
-        type="text"
-        className="search-input"
-        placeholder="Search by title or artist..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-      />
-    </div>
-
-    <div className="shop-header-right">
-      <button className="cart-toggle" onClick={() => setIsCartOpen(true)}>
-        🛒 Cart ({cart.length})
-      </button>
-    </div>
-  </div>
-</div>
+          <div className="shop-header">
+            <div className="shop-header-row">
+              <div className="shop-header-left">
+                <h2>All Products</h2>
+                <p className="product-count">
+                  {filteredArtworks.length} product{filteredArtworks.length !== 1 && "s"}
+                </p>
+              </div>
+              <div className="shop-header-center">
+                <input
+                  type="text"
+                  className="search-input"
+                  placeholder="Search by title or artist..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                />
+              </div>
+              <div className="shop-header-right">
+                <button className="cart-toggle" onClick={() => setIsCartOpen(true)}>
+                  🛒 Cart ({cart.length})
+                </button>
+              </div>
+            </div>
+          </div>
 
           <section className="shop">
             {filteredArtworks.map((art, index) => (
@@ -222,7 +216,7 @@ const Shop = () => {
                 className="art-card"
                 onClick={() => openModal(art, setSelectedArt)}
               >
-                <img src={art.imageUrl} alt={art.title} />
+                <img src={`http://localhost:5000${art.imageUrl}`} alt={art.title} />
                 <h3>{art.title}</h3>
                 <p>kr {Number(art.price).toLocaleString("no-NO")},00</p>
               </div>
@@ -231,22 +225,18 @@ const Shop = () => {
         </div>
       </main>
 
-      {/* POPUP MODAL */}
+      {/* PRODUCT MODAL */}
       {selectedArt && (
         <div className="popup">
           <div className="popup-content">
             <div className="popup-image">
-              <img src={selectedArt.imageUrl} alt={selectedArt.title} />
+              <img src={`http://localhost:5000${selectedArt.imageUrl}`} alt={selectedArt.title} />
             </div>
 
             <div className="popup-details">
-              <span className="close" onClick={() => closeModal(setSelectedArt)}>
-                &times;
-              </span>
+              <span className="close" onClick={() => closeModal(setSelectedArt)}>&times;</span>
               <h2>{selectedArt.title}</h2>
-              <p className="price">
-                kr {Number(selectedArt.price).toLocaleString("no-NO")},00
-              </p>
+              <p className="price">kr {Number(selectedArt.price).toLocaleString("no-NO")},00</p>
               <label className="qty-label">Quantity *</label>
               <div className="quantity-controls">
                 <button disabled>-</button>
@@ -255,9 +245,7 @@ const Shop = () => {
               </div>
               <div className="meta">
                 <h4>Artist</h4>
-              {selectedArt.artist?.name && (
-              <p className="artist-name">{selectedArt.artist.name}</p>
-              )}
+                {selectedArt.artist?.name && <p className="artist-name">{selectedArt.artist.name}</p>}
                 <div>
                   <h4>Dimension</h4>
                   <p>{selectedArt.size} cm</p>
@@ -267,13 +255,10 @@ const Shop = () => {
                   <p>{selectedArt.year || "Unknown"}</p>
                 </div>
               </div>
-              <button
-                className="add-to-cart"
-                onClick={() => {
-                  addToCart(selectedArt);
-                  closeModal(setSelectedArt);
-                }}
-              >
+              <button className="add-to-cart" onClick={() => {
+                addToCart(selectedArt);
+                closeModal(setSelectedArt);
+              }}>
                 Add to Cart
               </button>
             </div>
@@ -286,9 +271,7 @@ const Shop = () => {
         <div className="cart-drawer">
           <div className="cart-header">
             <h3>Cart ({cart.length} item{cart.length !== 1 && "s"})</h3>
-            <button onClick={() => setIsCartOpen(false)} className="cart-close">
-              &times;
-            </button>
+            <button onClick={() => setIsCartOpen(false)} className="cart-close">&times;</button>
           </div>
           <div className="cart-body">
             {cart.length === 0 ? (
@@ -296,38 +279,27 @@ const Shop = () => {
             ) : (
               <ul>
                 {cart.map((item) => (
-                 <li key={item._id} className="cart-item">
-                 <img src={item.imageUrl} alt={item.title} className="cart-thumb" />
-               
-                 <div className="cart-item-info">
-                   <strong>{item.title}</strong>
-                   <div>
-                   </div>
-                   <button onClick={() => removeFromCart(item._id)} className="remove-btn">
-                     Remove
-                   </button>
-                 </div>
-               </li>
+                  <li key={item._id} className="cart-item">
+                    <img src={`http://localhost:5000${item.imageUrl}`} alt={item.title} className="cart-thumb" />
+                    <div className="cart-item-info">
+                      <strong>{item.title}</strong>
+                      <button onClick={() => removeFromCart(item._id)} className="remove-btn">Remove</button>
+                    </div>
+                  </li>
                 ))}
               </ul>
             )}
           </div>
           {cart.length > 0 && (
-      <div className="cart-footer">
-        <p className="cart-total">
-          Total: kr{" "}
-          {cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString("no-NO")},00
-        </p>
-        <button
-  className="checkout-btn"
-  onClick={() => navigate("/order-summary", { state: { cart } })}
->
-  Proceed to Checkout
-</button>
-      </div>
-    )}
-
-
+            <div className="cart-footer">
+              <p className="cart-total">
+                Total: kr {cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString("no-NO")},00
+              </p>
+              <button className="checkout-btn" onClick={() => navigate("/order-summary", { state: { cart } })}>
+                Proceed to Checkout
+              </button>
+            </div>
+          )}
         </div>
       )}
     </div>
