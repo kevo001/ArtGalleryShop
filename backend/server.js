@@ -8,7 +8,11 @@ const app = express();
 
 // Middleware
 app.use(cors());
+app.use('/api/stripe/webhook', require('./routes/stripeWebhook'));
+
 app.use(express.json());
+
+
 
 // ✅ Serve uploaded images
 app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
@@ -25,6 +29,10 @@ app.use('/api', orderRoutes);
 
 const categoryRoutes = require('./routes/CategoryRoutes');
 app.use('/api', categoryRoutes);
+
+const stripeRoutes = require('./routes/Stripe');
+app.use('/api/stripe', stripeRoutes);
+
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {

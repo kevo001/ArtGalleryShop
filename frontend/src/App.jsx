@@ -10,6 +10,7 @@ import AdminOrderHistory from "./pages/AdminOrderHistory";
 import AdminArtists from "./pages/AdminArtists";
 import OrderSummary from "./pages/OrderSummary";
 import ContactPage from "./pages/Contact";
+import Success from "./pages/Success";
 
 function Layout() {
   const location = useLocation();
@@ -28,6 +29,7 @@ function Layout() {
         <Route path="/artists" element={<Artists />} />
         <Route path="/order-summary" element={<OrderSummary />} />
         <Route path="/contact" element={<ContactPage />} />
+        <Route path="/success" element={<Success />} />
       </Routes>
     </>
   );

@@ -39,6 +39,24 @@ const OrderSummary = () => {
     }
   };
 
+  const handleStripeCheckout = async () => {
+    try {
+      const response = await fetch("http://localhost:5000/api/stripe/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ cart }),
+      });
+  
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url; // send bruker til Stripe Checkout
+      }
+    } catch (error) {
+      console.error("Checkout error", error);
+    }
+  };
+  
+
   if (cart.length === 0) {
     return (
       <div className="order-summary empty">
@@ -111,7 +129,7 @@ const OrderSummary = () => {
           <button className="clear-btn" onClick={clearAll}>
             Clear All
           </button>
-          <button className="confirm-btn" onClick={() => alert("Order confirmed!")}>
+          <button className="confirm-btn" onClick={handleStripeCheckout}>
             Confirm Order
           </button>
         </div>
