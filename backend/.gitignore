@@ -46,3 +46,5 @@ node_modules
 dist
 dist-ssr
 .local
+
+git-filter-repo.py

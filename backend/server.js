@@ -8,8 +8,7 @@ const app = express();
 
 // Middleware
 app.use(cors());
-app.use('/api/stripe/webhook', require('./routes/stripeWebhook'));
-
+app.use("/api/webhook", require("./routes/stripeWebhook"));
 app.use(express.json());
 
 

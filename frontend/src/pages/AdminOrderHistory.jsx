@@ -7,68 +7,53 @@ const AdminOrderHistory = () => {
     fetch("http://localhost:5000/api/orders")
       .then((res) => res.json())
       .then((data) => setOrders(data))
-      .catch((error) => console.error("Error fetching order history:", error));
+      .catch((error) =>
+        console.error("Error fetching order history:", error)
+      );
   }, []);
+
+  const updateOrderStatus = async (orderId, newStatus) => {
+    try {
+      const res = await fetch(`http://localhost:5000/api/orders/${orderId}`, {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ status: newStatus }),
+      });
+
+      if (res.ok) {
+        const updatedOrder = await res.json();
+        setOrders((prev) =>
+          prev.map((order) =>
+            order._id === updatedOrder._id ? updatedOrder : order
+          )
+        );
+      }
+    } catch (err) {
+      console.error("Failed to update order status", err);
+    }
+  };
 
   return (
     <div className="flex flex-col min-h-screen bg-[#1A1A1A] text-white">
-      {/* NAVIGATION */}
-      <nav className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-[#282828] to-[#3E3E3E] drop-shadow-lg">
-        {/* Logo Section */}
-        <div>
-          < h1 className="text-2xl font-bold text-[#F5F5F5]">galleri edwin</h1>
-          <p className="text-[#CCCCCC] text-sm">Discover the exceptional living with art</p>
-        </div>
-
-        {/* Navigation Links */}
-        <ul className="flex space-x-6">
-          <li className="relative group">
-            <a href="/admin" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
-              Home
-              <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
-            </a>
-          </li>
-          <li className="relative group">
-            <a href="/admin/order-history" className="text-[#FFD700] hover:text-[#FFD700] transition duration-300">
-              Orders
-              <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
-            </a>
-          </li>
-          <li className="relative group">
-            <a href="/admin/products" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
-              Products
-              <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
-            </a>
-          </li>
-          <li className="relative group">
-            <a href="/admin/artists" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
-              Artists
-              <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
-            </a>
-          </li>
-          <li className="relative group">
-            <a href="#" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
-              Log Out
-              <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
-            </a>
-          </li>
-        </ul>
-      </nav>
-
       {/* HEADER */}
       <header className="bg-gradient-to-r from-[#444] to-[#2F2F2F] text-center py-10 shadow-lg">
-          <h1 className="text-4xl font-bold text-white">Order History</h1>
-          <p className="text-gray-300 mt-2">Overvåk og oppdatter kundens ordrer</p>
-        </header>
+        <h1 className="text-4xl font-bold text-white">Order History</h1>
+        <p className="text-gray-300 mt-2">Overvåk og oppdater kundens ordrer</p>
+      </header>
 
       {/* ORDER TABLE */}
       <div className="flex justify-center mt-10 px-4">
-        <div className="bg-[#2A2A2A] rounded-lg overflow-hidden w-full max-w-6xl shadow-lg">
+      <div className="bg-[#2A2A2A] rounded-lg overflow-x-auto w-full max-w-[100vw] xl:max-w-[1800px] shadow-lg">
           <table className="w-full text-left table-auto">
             <thead className="bg-[#333] text-white">
               <tr>
                 <th className="py-4 px-6 border-b border-[#444]">Order Number</th>
                 <th className="py-4 px-6 border-b border-[#444]">Customer</th>
+                <th className="py-4 px-6 border-b border-[#444]">Email</th>
+                <th className="py-4 px-6 border-b border-[#444]">Address</th>
+                <th className="py-4 px-6 border-b border-[#444]">Items</th>
                 <th className="py-4 px-6 border-b border-[#444]">Status</th>
                 <th className="py-4 px-6 border-b border-[#444]">Date</th>
                 <th className="py-4 px-6 border-b border-[#444]">Total</th>
@@ -80,25 +65,52 @@ const AdminOrderHistory = () => {
                   <tr key={order._id} className="hover:bg-[#383838] transition">
                     <td className="py-4 px-6 border-b border-[#444]">{order.orderNumber}</td>
                     <td className="py-4 px-6 border-b border-[#444]">{order.customerName}</td>
-                    <td className="py-4 px-6 border-b border-[#444]">{order.status}</td>
+                    <td className="py-4 px-6 border-b border-[#444]">{order.email}</td>
+                    <td className="py-4 px-6 border-b border-[#444]">
+                      {order.address?.line1
+                        ? `${order.address.line1}, ${order.address.postal_code} ${order.address.city}, ${order.address.country}`
+                        : <span className="text-gray-400 italic">Ingen adresse</span>}
+                    </td>
+                    <td className="py-4 px-6 border-b border-[#444]">
+                      {order.cart && order.cart.length > 0 ? (
+                        <ul className="list-disc list-inside space-y-1">
+                          {order.cart.map((item, index) => (
+                            <li key={index}>
+                              {item.title} × {item.quantity}
+                            </li>
+                          ))}
+                        </ul>
+                      ) : (
+                        <span className="text-gray-400 italic">Ingen produkter</span>
+                      )}
+                    </td>
+                    <td className="py-4 px-6 border-b border-[#444]">
+                      <select
+                        value={order.status}
+                        onChange={(e) =>
+                          updateOrderStatus(order._id, e.target.value)
+                        }
+                        className="bg-[#2A2A2A] border border-[#555] rounded px-2 py-1 text-white"
+                      >
+                        <option value="Under behandling">Under behandling</option>
+                        <option value="Ferdig">Ferdig</option>
+                      </select>
+                    </td>
                     <td className="py-4 px-6 border-b border-[#444]">{order.date}</td>
-                    <td className="py-4 px-6 border-b border-[#444]">kr {order.totalAmount},-</td>
+                    <td className="py-4 px-6 border-b border-[#444]">
+                      kr {order.totalAmount?.toLocaleString("no-NO")},-
+                    </td>
                   </tr>
                 ))
               ) : (
                 <tr>
-                  <td colSpan="5" className="text-center py-6 text-gray-400">Ingen ordrer funnet</td>
+                  <td colSpan="8" className="text-center py-6 text-gray-400">Ingen ordrer funnet</td>
                 </tr>
               )}
             </tbody>
           </table>
         </div>
       </div>
-
-      {/* FOOTER */}
-      <footer className="mt-auto text-center py-6 text-[#888] bg-[#1A1A1A] border-t border-[#333]">
-        <p>&copy; 2025 galleri edwin – Adminpanel</p>
-      </footer>
     </div>
   );
 };

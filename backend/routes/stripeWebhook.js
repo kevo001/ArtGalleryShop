@@ -2,8 +2,11 @@ const express = require("express");
 const router = express.Router();
 const Stripe = require("stripe");
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
+
 const endpointSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
 const Order = require("../models/Order");
+const Counter = require("../models/Counter");
 
 router.post(
   "/",
@@ -16,26 +19,47 @@ router.post(
       event = stripe.webhooks.constructEvent(req.body, sig, endpointSecret);
     } catch (err) {
       console.log(`❌ Webhook error: ${err.message}`);
-      return res.status(400).send(`Webhook Error`);
+      return res.status(400).send("Webhook Error");
     }
 
     if (event.type === "checkout.session.completed") {
       const session = event.data.object;
 
-      // Optional fallback if name is missing
-      const customerName = session.customer_details?.name || "Ukjent";
+      const customerName = session.customer_details?.name || "Ukjent kunde";
+      const email = session.customer_details?.email;
+      const address = session.customer_details?.address || {};
+      const cart = JSON.parse(session.metadata?.cart || "[]");
+      const totalAmount = session.amount_total / 100;
+      const date = new Date().toLocaleDateString("no-NO");
+
+      // Generate a custom order number
+      let orderNumber;
+      try {
+        const counter = await Counter.findOneAndUpdate(
+          { name: "order" },
+          { $inc: { value: 1 } },
+          { new: true, upsert: true }
+        );
+        orderNumber = `ORD-${counter.value}`;
+      } catch (err) {
+        console.error("❌ Failed to generate order number:", err);
+        return res.status(500).send("Failed to generate order number");
+      }
 
       const newOrder = new Order({
-        orderNumber: session.id,
+        orderNumber,
         customerName,
-        status: "Under behandling", // default value
-        date: new Date().toLocaleDateString("no-NO"), // or you can format your way
-        totalAmount: session.amount_total / 100, // from øre to kr
+        email,
+        address,
+        cart, // ⬅️ This saves what was purchased
+        status: "Under behandling",
+        date,
+        totalAmount,
       });
 
       try {
         await newOrder.save();
-        console.log("✅ Order saved:", newOrder);
+        console.log("✅ Order saved:", orderNumber);
       } catch (err) {
         console.error("❌ Failed to save order:", err);
       }

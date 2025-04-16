@@ -17,7 +17,7 @@ router.post('/orders', async (req, res) => {
 // Get all orders
 router.get('/orders', async (req, res) => {
   try {
-    const orders = await Order.find();
+    const orders = await Order.find().sort({ _id: -1 }); // newest first
     res.json(orders);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -33,5 +33,27 @@ router.delete('/orders/:id', async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+
+// Update order status
+router.patch('/orders/:id', async (req, res) => {
+  const { status } = req.body;
+
+  if (!['Under behandling', 'Ferdig'].includes(status)) {
+    return res.status(400).json({ error: "Invalid status value" });
+  }
+
+  try {
+    const updatedOrder = await Order.findByIdAndUpdate(
+      req.params.id,
+      { status },
+      { new: true }
+    );
+
+    res.json(updatedOrder);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
 
 module.exports = router;

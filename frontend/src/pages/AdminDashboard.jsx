@@ -53,7 +53,7 @@ const AdminDashboard = () => {
             </a>
           </li>
           <li className="relative group">
-            <a href="/admin/order-history" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
+            <a href="/admin/OrderHistory" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
               Orders
               <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
             </a>
