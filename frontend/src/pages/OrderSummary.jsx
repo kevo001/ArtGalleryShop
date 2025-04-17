@@ -1,15 +1,33 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "../styles/OrderSummary.css";
 
 const OrderSummary = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const initialCart = location.state?.cart || [];
-
-  const [cart, setCart] = useState(initialCart);
+  const [cart, setCart] = useState([]);
   const [lastRemoved, setLastRemoved] = useState(null);
   const [lastCleared, setLastCleared] = useState(null);
+
+  // Initialize cart from either location.state or URL query param
+  useEffect(() => {
+    const stateCart = location.state?.cart || [];
+    const params = new URLSearchParams(location.search);
+    const cartB64 = params.get("cart");
+
+    if (cartB64) {
+      try {
+        const json = atob(cartB64);
+        const parsed = JSON.parse(json);
+        setCart(parsed);
+      } catch (e) {
+        console.error("Invalid cart data in URL:", e);
+        setCart(stateCart);
+      }
+    } else {
+      setCart(stateCart);
+    }
+  }, [location.search, location.state]);
 
   const total = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
@@ -41,29 +59,34 @@ const OrderSummary = () => {
 
   const handleStripeCheckout = async () => {
     try {
-      const response = await fetch("http://localhost:5000/api/stripe/create-checkout-session", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ cart }),
-      });
-  
+      const response = await fetch(
+        "http://localhost:5000/api/stripe/create-checkout-session",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ cart }),
+        }
+      );
       const data = await response.json();
       if (data.url) {
-        window.location.href = data.url; // send bruker til Stripe Checkout
+        window.location.href = data.url;
       }
     } catch (error) {
       console.error("Checkout error", error);
     }
   };
-  
 
   if (cart.length === 0) {
     return (
       <div className="order-summary empty">
         <h2>Your order is empty.</h2>
-        <button className="back-btn-top" onClick={() => navigate("/shop")}>
+        <button
+          className="back-btn-top"
+          onClick={() => navigate("/shop", { state: { cart } })}
+        >
           ← Back to Shop
         </button>
+
         {lastRemoved && (
           <button className="undo-btn" onClick={undoRemove}>
             Undo Remove
@@ -85,7 +108,10 @@ const OrderSummary = () => {
   return (
     <div className="order-summary">
       <div className="order-summary-header">
-        <button className="back-arrow" onClick={() => navigate("/shop", { state: { cart } })}>
+        <button
+          className="back-arrow"
+          onClick={() => navigate("/shop", { state: { cart } })}
+        >
           ←
         </button>
         <h2>Order Summary</h2>
@@ -103,8 +129,13 @@ const OrderSummary = () => {
               <div className="summary-info">
                 <h4>{item.title}</h4>
                 <p>Quantity: {item.quantity}</p>
-                <p>Price: kr {Number(item.price).toLocaleString("no-NO")},00</p>
-                <button className="remove-summary" onClick={() => removeItem(item._id)}>
+                <p>
+                  Price: kr {Number(item.price).toLocaleString("no-NO")},00
+                </p>
+                <button
+                  className="remove-summary"
+                  onClick={() => removeItem(item._id)}
+                >
                   Remove
                 </button>
               </div>

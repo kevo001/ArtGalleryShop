@@ -39,7 +39,8 @@ const upload = multer({
 // ✅ Create a new item with image
 router.post('/items', upload.single('image'), async (req, res) => {
   try {
-    const { title, description, price, size, category, artistId } = req.body;
+    const { title, description, price, size, year, dimension, category, artistId } = req.body;
+
 
     if (!req.file) {
       return res.status(400).json({ error: 'Image is required' });
@@ -51,9 +52,13 @@ router.post('/items', upload.single('image'), async (req, res) => {
       price,
       imageUrl: `/uploads/${req.file.filename}`,
       size,
+      year,
+      dimension,
       category,
       artist: artistId,
     });
+    
+    
 
     await newItem.save();
     res.status(201).json(newItem);
@@ -74,14 +79,33 @@ router.get('/items', async (req, res) => {
 });
 
 // ✅ Update an item (image update not included here)
-router.put('/items/:id', async (req, res) => {
+router.put('/items/:id', upload.single('image'), async (req, res) => {
   try {
-    const updatedItem = await Item.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    const { title, description, price, size, year, dimension, category, artistId } = req.body;
+
+    const updateData = {
+      title,
+      description,
+      price,
+      size,
+      year,
+      dimension,
+      category,
+      artist: artistId,
+    };
+
+    if (req.file) {
+      updateData.imageUrl = `/uploads/${req.file.filename}`;
+    }
+
+    const updatedItem = await Item.findByIdAndUpdate(req.params.id, updateData, { new: true });
     res.json(updatedItem);
   } catch (error) {
+    console.error('Update item error:', error);
     res.status(400).json({ error: error.message });
   }
 });
+
 
 // ✅ Delete an item (and optionally delete the image file)
 router.delete('/items/:id', async (req, res) => {

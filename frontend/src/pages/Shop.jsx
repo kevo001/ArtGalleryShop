@@ -1,4 +1,3 @@
-// imports unchanged
 import { useEffect, useState } from "react";
 import { openModal, closeModal } from "../scripts/shopScripts";
 import "../styles/Shop.css";
@@ -23,9 +22,11 @@ const Shop = () => {
       try {
         const response = await fetch("http://localhost:5000/api/items");
         const data = await response.json();
+        data.sort((a, b) => (b._id > a._id ? 1 : -1));
         setArtworks(data);
         setFilteredArtworks(data);
 
+        // Artist filter options
         const artistMap = new Map();
         data.forEach((item) => {
           if (item.artist && item.artist._id) {
@@ -34,13 +35,11 @@ const Shop = () => {
         });
         setArtistOptions([...artistMap.values()]);
 
-        const typeMap = new Map();
-        data.forEach((item) => {
-          if (item.type && item.type._id) {
-            typeMap.set(item.type._id, item.type);
-          }
-        });
-        setTypeOptions([...typeMap.values()]);
+        // Category filter options
+        const uniqueCategories = [
+          ...new Set(data.map((item) => item.category).filter(Boolean)),
+        ];
+        setTypeOptions(uniqueCategories);
       } catch (error) {
         console.error("Failed to fetch artworks:", error);
       }
@@ -50,32 +49,30 @@ const Shop = () => {
   }, []);
 
   useEffect(() => {
-    const applyFilters = () => {
-      let filtered = artworks;
+    let filtered = artworks;
 
-      if (searchTerm) {
-        filtered = filtered.filter((art) =>
-          art.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          art.artist?.name?.toLowerCase().includes(searchTerm.toLowerCase())
-        );
-      }
+    if (searchTerm) {
+      filtered = filtered.filter((art) =>
+        art.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        art.artist?.name?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    }
 
-      if (filters.artist) {
-        filtered = filtered.filter((art) => art.artist?._id === filters.artist);
-      }
+    if (filters.artist) {
+      filtered = filtered.filter(
+        (art) => art.artist?._id === filters.artist
+      );
+    }
 
-      if (filters.type) {
-        filtered = filtered.filter((art) => art.type?._id === filters.type);
-      }
+    if (filters.type) {
+      filtered = filtered.filter((art) => art.category === filters.type);
+    }
 
-      if (filters.size.length > 0) {
-        filtered = filtered.filter((art) => filters.size.includes(art.size));
-      }
+    if (filters.size.length > 0) {
+      filtered = filtered.filter((art) => filters.size.includes(art.size));
+    }
 
-      setFilteredArtworks(filtered);
-    };
-
-    applyFilters();
+    setFilteredArtworks(filtered);
   }, [searchTerm, filters, artworks]);
 
   const toggleSize = (size) => {
@@ -114,21 +111,20 @@ const Shop = () => {
     setCart((prevCart) => prevCart.filter((item) => item._id !== id));
   };
 
+  // Load saved cart from localStorage
   useEffect(() => {
     const savedCart = JSON.parse(localStorage.getItem("cart"));
-    if (savedCart) {
-      setCart(savedCart);
-    }
+    if (savedCart) setCart(savedCart);
   }, []);
 
+  // Persist cart
   useEffect(() => {
     localStorage.setItem("cart", JSON.stringify(cart));
   }, [cart]);
 
+  // Handle cart passed via navigation state
   useEffect(() => {
-    if (location.state?.cart) {
-      setCart(location.state.cart);
-    }
+    if (location.state?.cart) setCart(location.state.cart);
   }, [location.state]);
 
   return (
@@ -141,7 +137,9 @@ const Shop = () => {
             <h4>Artist</h4>
             <select
               value={filters.artist}
-              onChange={(e) => setFilters({ ...filters, artist: e.target.value })}
+              onChange={(e) =>
+                setFilters({ ...filters, artist: e.target.value })
+              }
             >
               <option value="">All</option>
               {artistOptions.map((artist) => (
@@ -159,9 +157,9 @@ const Shop = () => {
               onChange={(e) => setFilters({ ...filters, type: e.target.value })}
             >
               <option value="">All</option>
-              {typeOptions.map((type) => (
-                <option key={type._id} value={type._id}>
-                  {type.name}
+              {typeOptions.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
                 </option>
               ))}
             </select>
@@ -175,7 +173,7 @@ const Shop = () => {
                   type="checkbox"
                   checked={filters.size.includes(size)}
                   onChange={() => toggleSize(size)}
-                />{" "}
+                />
                 {size}
               </label>
             ))}
@@ -189,7 +187,8 @@ const Shop = () => {
               <div className="shop-header-left">
                 <h2>All Products</h2>
                 <p className="product-count">
-                  {filteredArtworks.length} product{filteredArtworks.length !== 1 && "s"}
+                  {filteredArtworks.length} product
+                  {filteredArtworks.length !== 1 && "s"}
                 </p>
               </div>
               <div className="shop-header-center">
@@ -202,7 +201,10 @@ const Shop = () => {
                 />
               </div>
               <div className="shop-header-right">
-                <button className="cart-toggle" onClick={() => setIsCartOpen(true)}>
+                <button
+                  className="cart-toggle"
+                  onClick={() => setIsCartOpen(true)}
+                >
                   🛒 Cart ({cart.length})
                 </button>
               </div>
@@ -210,13 +212,16 @@ const Shop = () => {
           </div>
 
           <section className="shop">
-            {filteredArtworks.map((art, index) => (
+            {filteredArtworks.map((art) => (
               <div
-                key={index}
+                key={art._id}
                 className="art-card"
                 onClick={() => openModal(art, setSelectedArt)}
               >
-                <img src={`http://localhost:5000${art.imageUrl}`} alt={art.title} />
+                <img
+                  src={`http://localhost:5000${art.imageUrl}`}
+                  alt={art.title}
+                />
                 <h3>{art.title}</h3>
                 <p>kr {Number(art.price).toLocaleString("no-NO")},00</p>
               </div>
@@ -230,13 +235,23 @@ const Shop = () => {
         <div className="popup">
           <div className="popup-content">
             <div className="popup-image">
-              <img src={`http://localhost:5000${selectedArt.imageUrl}`} alt={selectedArt.title} />
+              <img
+                src={`http://localhost:5000${selectedArt.imageUrl}`}
+                alt={selectedArt.title}
+              />
             </div>
 
             <div className="popup-details">
-              <span className="close" onClick={() => closeModal(setSelectedArt)}>&times;</span>
+              <span
+                className="close"
+                onClick={() => closeModal(setSelectedArt)}
+              >
+                &times;
+              </span>
               <h2>{selectedArt.title}</h2>
-              <p className="price">kr {Number(selectedArt.price).toLocaleString("no-NO")},00</p>
+              <p className="price">
+                kr {Number(selectedArt.price).toLocaleString("no-NO")},00
+              </p>
               <label className="qty-label">Quantity *</label>
               <div className="quantity-controls">
                 <button disabled>-</button>
@@ -244,21 +259,35 @@ const Shop = () => {
                 <button disabled>+</button>
               </div>
               <div className="meta">
-                <h4>Artist</h4>
-                {selectedArt.artist?.name && <p className="artist-name">{selectedArt.artist.name}</p>}
-                <div>
-                  <h4>Dimension</h4>
-                  <p>{selectedArt.size} cm</p>
-                </div>
-                <div>
-                  <h4>Year</h4>
-                  <p>{selectedArt.year || "Unknown"}</p>
-                </div>
+                {selectedArt.artist?.name && (
+                  <>
+                    <h4>Artist</h4>
+                    <p className="artist-name">{selectedArt.artist.name}</p>
+                  </>
+                )}
+                {(selectedArt.dimension || selectedArt.size) && (
+                  <>
+                    <h4>Size</h4>
+                    <p>
+                      {selectedArt.dimension || ""}{" "}
+                      {selectedArt.size ? `(${selectedArt.size})` : ""}
+                    </p>
+                  </>
+                )}
+                {selectedArt.year && (
+                  <>
+                    <h4>Year</h4>
+                    <p>{selectedArt.year}</p>
+                  </>
+                )}
               </div>
-              <button className="add-to-cart" onClick={() => {
-                addToCart(selectedArt);
-                closeModal(setSelectedArt);
-              }}>
+              <button
+                className="add-to-cart"
+                onClick={() => {
+                  addToCart(selectedArt);
+                  closeModal(setSelectedArt);
+                }}
+              >
                 Add to Cart
               </button>
             </div>
@@ -270,8 +299,15 @@ const Shop = () => {
       {isCartOpen && (
         <div className="cart-drawer">
           <div className="cart-header">
-            <h3>Cart ({cart.length} item{cart.length !== 1 && "s"})</h3>
-            <button onClick={() => setIsCartOpen(false)} className="cart-close">&times;</button>
+            <h3>
+              Cart ({cart.length} item{cart.length !== 1 && "s"})
+            </h3>
+            <button
+              onClick={() => setIsCartOpen(false)}
+              className="cart-close"
+            >
+              &times;
+            </button>
           </div>
           <div className="cart-body">
             {cart.length === 0 ? (
@@ -280,10 +316,19 @@ const Shop = () => {
               <ul>
                 {cart.map((item) => (
                   <li key={item._id} className="cart-item">
-                    <img src={`http://localhost:5000${item.imageUrl}`} alt={item.title} className="cart-thumb" />
+                    <img
+                      src={`http://localhost:5000${item.imageUrl}`}
+                      alt={item.title}
+                      className="cart-thumb"
+                    />
                     <div className="cart-item-info">
                       <strong>{item.title}</strong>
-                      <button onClick={() => removeFromCart(item._id)} className="remove-btn">Remove</button>
+                      <button
+                        onClick={() => removeFromCart(item._id)}
+                        className="remove-btn"
+                      >
+                        Remove
+                      </button>
                     </div>
                   </li>
                 ))}
@@ -293,9 +338,14 @@ const Shop = () => {
           {cart.length > 0 && (
             <div className="cart-footer">
               <p className="cart-total">
-                Total: kr {cart.reduce((sum, item) => sum + item.price * item.quantity, 0).toLocaleString("no-NO")},00
+                Total: kr {cart.reduce((sum, i) => sum + i.price * i.quantity, 0).toLocaleString("no-NO")},00
               </p>
-              <button className="checkout-btn" onClick={() => navigate("/order-summary", { state: { cart } })}>
+              <button
+                className="checkout-btn"
+                onClick={() =>
+                  navigate("/order-summary", { state: { cart } })
+                }
+              >
                 Proceed to Checkout
               </button>
             </div>
