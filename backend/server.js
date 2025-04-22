@@ -7,7 +7,10 @@ require('dotenv').config();
 const app = express();
 
 // Middleware
-app.use(cors());
+app.use(cors({
+  origin: 'https://galleriedwin.onrender.com',
+  credentials: true,
+}));
 app.use("/api/webhook", require("./routes/stripeWebhook"));
 app.use(express.json());
 

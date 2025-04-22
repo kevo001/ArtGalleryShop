@@ -47,5 +47,5 @@ dist
 dist-ssr
 .local
 
-git-filter-repo.py
-e -i --root
+/git-filter-repo.py
+/e -i --root
