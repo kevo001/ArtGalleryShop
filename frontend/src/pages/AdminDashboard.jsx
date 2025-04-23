@@ -14,7 +14,7 @@ const AdminDashboard = () => {
       .then((res) => res.json())
       .then((data) => {
         setStats((prev) => ({ ...prev, items: data.length }));
-        setItems(data); // Save items to state
+        setItems(data);
       })
       .catch((error) => console.error("Error fetching items:", error));
 
@@ -23,7 +23,7 @@ const AdminDashboard = () => {
       .then((res) => res.json())
       .then((data) => {
         setStats((prev) => ({ ...prev, artists: data.length }));
-        setArtists(data); // Save artists to state
+        setArtists(data);
       })
       .catch((error) => console.error("Error fetching artists:", error));
 
@@ -32,7 +32,7 @@ const AdminDashboard = () => {
       .then((res) => res.json())
       .then((data) => {
         setStats((prev) => ({ ...prev, orders: data.length }));
-        setOrders(data); // Save orders to state
+        setOrders(data);
       })
       .catch((error) => console.error("Error fetching orders:", error));
   }, []);
@@ -51,10 +51,12 @@ const AdminDashboard = () => {
     <div className="flex flex-col min-h-screen bg-[#1A1A1A] text-white">
       {/* NAVIGATION */}
       <nav className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-[#282828] to-[#3E3E3E] drop-shadow-lg">
-        <div>
-          <h1 className="text-2xl font-bold text-[#F5F5F5]">galleri edwin</h1>
+        <a href="/admin" className="block">
+          <h1 className="text-2xl font-bold text-[#F5F5F5] hover:text-[#FFD700] transition-colors">
+            galleri edwin
+          </h1>
           <p className="text-[#CCCCCC] text-sm">Discover the exceptional living with art</p>
-        </div>
+        </a>
         <ul className="flex space-x-6">
           <li className="relative group">
             <a href="/admin" className="text-[#FFD700] hover:text-[#FFD700] transition duration-300">Home</a>

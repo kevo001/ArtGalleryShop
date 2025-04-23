@@ -13,7 +13,15 @@ const AdminProducts = () => {
     const [selectedCategoryToDelete, setSelectedCategoryToDelete] = useState('');
 
     const [newProduct, setNewProduct] = useState({
-        title: "", description: "", price: "", imageUrl: "", size: "", category: "", artistId: ""
+        title: "",
+        description: "",
+        price: "",
+        imageUrl: "",
+        size: "",
+        dimension: "",
+        year: "",
+        category: "",
+        artistId: ""
     });
 
     // Fetch products on mount
@@ -47,8 +55,9 @@ const AdminProducts = () => {
 
     // Handle product creation
     const handleSubmit = async () => {
-        const { title, description, price, imageUrl, size, category, artistId } = newProduct;
-        if (!title || !description || !price || !imageUrl || !size || !category || !artistId) {
+        const { title, description, price, imageUrl, size, dimension, year, category, artistId } = newProduct;
+
+        if (!title || !description || !price || !imageUrl || !size || !dimension || !year || !category || !artistId) {
             alert("Alle felt må fylles ut.");
             return;
         }
@@ -57,7 +66,7 @@ const AdminProducts = () => {
             const res = await fetch("http://localhost:5000/api/items", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(newProduct),
+                body: JSON.stringify(newProduct)
             });
 
             if (res.ok) {
@@ -65,10 +74,24 @@ const AdminProducts = () => {
                 const data = await updated.json();
                 setProducts(data);
                 setIsModalOpen(false);
-                setNewProduct({ title: "", description: "", price: "", imageUrl: "", size: "", category: "", artistId: "" });
+                setNewProduct({
+                    title: "",
+                    description: "",
+                    price: "",
+                    imageUrl: "",
+                    size: "",
+                    dimension: "",
+                    year: "",
+                    category: "",
+                    artistId: ""
+                });
+            } else {
+                const errorText = await res.text();
+                console.error("Feil ved oppretting av produkt:", errorText);
+                alert("Feil: " + errorText);
             }
         } catch (err) {
-            console.error("Error creating product:", err);
+            console.error("Nettverksfeil:", err);
         }
     };
 
@@ -145,56 +168,56 @@ const AdminProducts = () => {
     };
 
     // Handle product update
-const handleUpdateProduct = async () => {
-    const { title, description, price, imageUrl, size, category, artistId, ...rest } = newProduct;
+    const handleUpdateProduct = async () => {
+        const { title, description, price, imageUrl, size, category, artistId, ...rest } = newProduct;
 
-    if (!title || !description || !price || !imageUrl || !size || !category || !artistId) {
-        alert("Alle felt må fylles ut.");
-        return;
-    }
-
-    try {
-        const res = await fetch(`http://localhost:5000/api/items/${selectedProduct._id}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                ...rest,
-                title,
-                description,
-                price,
-                imageUrl,
-                size,
-                category,
-                artist: artistId, // ✅ Correctly assign artistId to the backend 'artist' field
-            }),
-        });
-
-        if (res.ok) {
-            const updated = await fetch("http://localhost:5000/api/items");
-            const data = await updated.json();
-            setProducts(data);
-
-            // ✅ Clear modal and selection
-            setIsModalOpen(false);
-            setSelectedProduct(null);
-            setNewProduct({
-                title: "",
-                description: "",
-                price: "",
-                imageUrl: "",
-                size: "",
-                category: "",
-                artistId: ""
-            });
-        } else {
-            alert("Noe gikk galt under oppdatering av produktet.");
+        if (!title || !description || !price || !imageUrl || !size || !category || !artistId) {
+            alert("Alle felt må fylles ut.");
+            return;
         }
-    } catch (err) {
-        console.error("Feil ved oppdatering:", err);
-    }
-};
+
+        try {
+            const res = await fetch(`http://localhost:5000/api/items/${selectedProduct._id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    ...rest,
+                    title,
+                    description,
+                    price,
+                    imageUrl,
+                    size,
+                    category,
+                    artist: artistId, // ✅ Correctly assign artistId to the backend 'artist' field
+                }),
+            });
+
+            if (res.ok) {
+                const updated = await fetch("http://localhost:5000/api/items");
+                const data = await updated.json();
+                setProducts(data);
+
+                // ✅ Clear modal and selection
+                setIsModalOpen(false);
+                setSelectedProduct(null);
+                setNewProduct({
+                    title: "",
+                    description: "",
+                    price: "",
+                    imageUrl: "",
+                    size: "",
+                    category: "",
+                    artistId: ""
+                });
+            } else {
+                alert("Noe gikk galt under oppdatering av produktet.");
+            }
+        } catch (err) {
+            console.error("Feil ved oppdatering:", err);
+        }
+    };
 
 
     return (
@@ -202,10 +225,12 @@ const handleUpdateProduct = async () => {
             {/* NAVIGATION */}
             <nav className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-[#282828] to-[#3E3E3E] drop-shadow-lg">
                 {/* Logo Section */}
-                <div>
-                    <h1 className="text-2xl font-bold text-[#F5F5F5]">galleri edwin</h1>
+                <a href="/admin" className="block">
+                    <h1 className="text-2xl font-bold text-[#F5F5F5] hover:text-[#FFD700] transition-colors">
+                        galleri edwin
+                    </h1>
                     <p className="text-[#CCCCCC] text-sm">Discover the exceptional living with art</p>
-                </div>
+                </a>
 
                 {/* Navigation Links */}
                 <ul className="flex space-x-6">
@@ -411,6 +436,8 @@ const handleUpdateProduct = async () => {
                         <p className="text-sm text-gray-300 mb-1"><span className="font-semibold text-white">Pris:</span> {selectedProduct.price} kr</p>
                         <p className="text-sm text-gray-300 mb-1"><span className="font-semibold text-white">Beskrivelse:</span> {selectedProduct.description}</p>
                         <p className="text-sm text-gray-300 mb-1"><span className="font-semibold text-white">Størrelse:</span> {selectedProduct.size}</p>
+                        <p className="text-sm text-gray-300 mb-1"><span className="font-semibold text-white">Dimensjon:</span> {selectedProduct.dimension}</p>
+                        <p className="text-sm text-gray-300 mb-1"><span className="font-semibold text-white">Årstall:</span> {selectedProduct.year}</p>
                         <p className="text-sm text-gray-300 mb-1"><span className="font-semibold text-white">Kategori:</span> {selectedProduct.category}</p>
                         {selectedProduct.artist?.name && (
                             <p className="text-sm text-gray-300 mb-3"><span className="font-semibold text-white">Kunstner:</span> {selectedProduct.artist.name}</p>
@@ -461,13 +488,13 @@ const handleUpdateProduct = async () => {
                         <h2 className="text-2xl font-semibold text-white mb-6 text-center">Legg til nytt produkt</h2>
 
                         {/* FORM FIELDS */}
-                        {["title", "description", "price", "imageUrl", "size"].map((field) => (
+                        {["title", "description", "price", "imageUrl", "year", "dimension"].map((field) => (
                             <div key={field}>
                                 <label className="block text-[#F5F5F5] mb-1">
                                     {field.charAt(0).toUpperCase() + field.slice(1)}
                                 </label>
                                 <input
-                                    type={field === "price" ? "number" : "text"}
+                                    type={["price", "year"].includes(field) ? "number" : "text"}
                                     name={field}
                                     className="w-full p-2 mb-4 bg-[#1A1A1A] text-white rounded border border-gray-600 focus:border-[#FFD700] outline-none"
                                     value={newProduct[field]}
@@ -475,6 +502,20 @@ const handleUpdateProduct = async () => {
                                 />
                             </div>
                         ))}
+
+                        {/* SIZE DROPDOWN */}
+                        <label className="block text-[#F5F5F5] mb-1">Størrelse</label>
+                        <select
+                            name="size"
+                            className="w-full p-2 mb-4 bg-[#1A1A1A] text-white rounded border border-gray-600 focus:border-[#FFD700] outline-none cursor-pointer"
+                            value={newProduct.size}
+                            onChange={handleChange}
+                        >
+                            <option value="">Velg en størrelse</option>
+                            <option value="Liten">Liten</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Stor">Stor</option>
+                        </select>
 
                         {/* CATEGORY DROPDOWN */}
                         <label className="block text-[#F5F5F5] mb-1">Kategori</label>

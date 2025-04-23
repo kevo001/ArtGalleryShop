@@ -40,10 +40,12 @@ const AdminArtists = () => {
         <div className="flex flex-col min-h-screen bg-[#1A1A1A] text-white">
             {/* NAVIGATION */}
             <nav className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-[#282828] to-[#3E3E3E] drop-shadow-lg">
-                <div>
-                    <h1 className="text-2xl font-bold text-[#F5F5F5]">galleri edwin</h1>
+                <a href="/admin" className="block">
+                    <h1 className="text-2xl font-bold text-[#F5F5F5] hover:text-[#FFD700] transition-colors">
+                        galleri edwin
+                    </h1>
                     <p className="text-[#CCCCCC] text-sm">Discover the exceptional living with art</p>
-                </div>
+                </a>
                 <ul className="flex space-x-6">
                     <li className="relative group"><a href="/admin" className="text-[#F5F5F5] hover:text-[#FFD700]">Home</a></li>
                     <li className="relative group"><a href="/admin/order-history" className="text-[#F5F5F5] hover:text-[#FFD700]">Orders</a></li>

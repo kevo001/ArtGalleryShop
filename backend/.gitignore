@@ -17,7 +17,41 @@
 .env.development.local
 .env.test.local
 .env.production.local
+<<<<<<< HEAD
+=======
+.env
+.env.*
+>>>>>>> 54a88555929675988f13a2f24acb758bac23ddde
 
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+<<<<<<< HEAD
+=======
+
+.vscode/
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+.ntvs
+*.njsproj
+*.sln
+*.sw?
+
+logs
+.log
+npm-debug.log
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+node_modules
+dist
+dist-ssr
+.local
+
+/git-filter-repo.py
+/e -i --root
+>>>>>>> 54a88555929675988f13a2f24acb758bac23ddde
