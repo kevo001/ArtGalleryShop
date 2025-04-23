@@ -14,6 +14,7 @@ const Navbar = () => {
         <Link to="/artists">Artists</Link>
         <Link to="/gallery">Gallery</Link>
         <Link to="/contact">Contact</Link>
+        <Link to="/signin">Sign In</Link>
       </nav>
     </header>
   );

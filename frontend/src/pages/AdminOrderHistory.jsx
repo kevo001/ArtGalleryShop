@@ -40,7 +40,7 @@ const AdminOrderHistory = () => {
             <a href="/admin/artists" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">Artists</a>
           </li>
           <li className="relative group">
-            <a href="#" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">Log Out</a>
+            <a href="/" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">Log Out</a>
           </li>
         </ul>
       </nav>

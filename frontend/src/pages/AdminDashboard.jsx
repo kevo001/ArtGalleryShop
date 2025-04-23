@@ -14,7 +14,7 @@ const AdminDashboard = () => {
       .then((res) => res.json())
       .then((data) => {
         setStats((prev) => ({ ...prev, items: data.length }));
-        setItems(data);
+        setItems(data); // Save items to state
       })
       .catch((error) => console.error("Error fetching items:", error));
 
@@ -23,7 +23,7 @@ const AdminDashboard = () => {
       .then((res) => res.json())
       .then((data) => {
         setStats((prev) => ({ ...prev, artists: data.length }));
-        setArtists(data);
+        setArtists(data); // Save artists to state
       })
       .catch((error) => console.error("Error fetching artists:", error));
 
@@ -32,7 +32,7 @@ const AdminDashboard = () => {
       .then((res) => res.json())
       .then((data) => {
         setStats((prev) => ({ ...prev, orders: data.length }));
-        setOrders(data);
+        setOrders(data); // Save orders to state
       })
       .catch((error) => console.error("Error fetching orders:", error));
   }, []);
@@ -71,7 +71,7 @@ const AdminDashboard = () => {
             <a href="/admin/artists" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">Artists</a>
           </li>
           <li className="relative group">
-            <a href="#" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">Log Out</a>
+            <a href="/" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">Log Out</a>
           </li>
         </ul>
       </nav>
