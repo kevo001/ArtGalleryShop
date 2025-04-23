@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import SignOutButton from "../components/SignOutButton";
 
 const AdminOrderHistory = () => {
   const [orders, setOrders] = useState([]);
@@ -20,7 +21,7 @@ const AdminOrderHistory = () => {
     <div className="flex flex-col min-h-screen bg-[#1A1A1A] text-white">
       {/* NAVIGATION */}
       <nav className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-[#282828] to-[#3E3E3E] drop-shadow-lg">
-        <a href="/admin" className="block">
+        <a href="/" className="block">
           <h1 className="text-2xl font-bold text-[#F5F5F5] hover:text-[#FFD700] transition-colors">
             galleri edwin
           </h1>
@@ -28,20 +29,30 @@ const AdminOrderHistory = () => {
         </a>
         <ul className="flex space-x-6">
           <li className="relative group">
-            <a href="/admin" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">Home</a>
+            <a href="/admin" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
+              Home
+              <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
+            </a>
           </li>
           <li className="relative group">
-            <a href="/admin/order-history" className="text-[#FFD700] hover:text-[#FFD700] transition duration-300">Orders</a>
+            <a href="/admin/order-history" className="text-[#FFD700] hover:text-[#FFD700] transition duration-300">
+              Orders
+              <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
+            </a>
           </li>
           <li className="relative group">
-            <a href="/admin/products" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">Products</a>
+            <a href="/admin/products" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
+              Products
+              <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
+            </a>
           </li>
           <li className="relative group">
-            <a href="/admin/artists" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">Artists</a>
+            <a href="/admin/artists" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
+              Artists
+              <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
+            </a>
           </li>
-          <li className="relative group">
-            <a href="/" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">Log Out</a>
-          </li>
+          <SignOutButton />
         </ul>
       </nav>
 

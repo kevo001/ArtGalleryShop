@@ -1,5 +1,6 @@
 import { Link } from "react-router-dom";
-import "../styles/Navbar.css"; 
+import AuthButton from "./AuthButton"; // 🔧 fikset import-sti
+import "../styles/Navbar.css";
 
 const Navbar = () => {
   return (
@@ -14,7 +15,9 @@ const Navbar = () => {
         <Link to="/artists">Artists</Link>
         <Link to="/gallery">Gallery</Link>
         <Link to="/contact">Contact</Link>
-        <Link to="/signin">Sign In</Link>
+
+        {/* 👇 erstatter statisk link med dynamisk knapp */}
+        <AuthButton />
       </nav>
     </header>
   );

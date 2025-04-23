@@ -1,4 +1,3 @@
-// backend/server.js
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
@@ -22,6 +21,9 @@ app.use('/api', orderRoutes);
 
 const categoryRoutes = require('./routes/CategoryRoutes');
 app.use('/api', categoryRoutes);
+
+const authRoutes = require('./routes/AuthRoutes');
+app.use('/api', authRoutes);
 
 // Connect to MongoDB
 mongoose.connect(process.env.MONGO_URI, {
