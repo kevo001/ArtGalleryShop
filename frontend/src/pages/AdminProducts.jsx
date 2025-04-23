@@ -13,7 +13,15 @@ const AdminProducts = () => {
     const [selectedCategoryToDelete, setSelectedCategoryToDelete] = useState('');
 
     const [newProduct, setNewProduct] = useState({
-        title: "", description: "", price: "", imageUrl: "", size: "", category: "", artistId: ""
+        title: "",
+        description: "",
+        price: "",
+        imageUrl: "",
+        size: "",
+        dimension: "",
+        year: "",
+        category: "",
+        artistId: ""
     });
 
     // Fetch products on mount
@@ -47,8 +55,9 @@ const AdminProducts = () => {
 
     // Handle product creation
     const handleSubmit = async () => {
-        const { title, description, price, imageUrl, size, category, artistId } = newProduct;
-        if (!title || !description || !price || !imageUrl || !size || !category || !artistId) {
+        const { title, description, price, imageUrl, size, dimension, year, category, artistId } = newProduct;
+
+        if (!title || !description || !price || !imageUrl || !size || !dimension || !year || !category || !artistId) {
             alert("Alle felt må fylles ut.");
             return;
         }
@@ -57,7 +66,7 @@ const AdminProducts = () => {
             const res = await fetch("http://localhost:5000/api/items", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(newProduct),
+                body: JSON.stringify(newProduct)
             });
 
             if (res.ok) {
@@ -65,10 +74,24 @@ const AdminProducts = () => {
                 const data = await updated.json();
                 setProducts(data);
                 setIsModalOpen(false);
-                setNewProduct({ title: "", description: "", price: "", imageUrl: "", size: "", category: "", artistId: "" });
+                setNewProduct({
+                    title: "",
+                    description: "",
+                    price: "",
+                    imageUrl: "",
+                    size: "",
+                    dimension: "",
+                    year: "",
+                    category: "",
+                    artistId: ""
+                });
+            } else {
+                const errorText = await res.text();
+                console.error("Feil ved oppretting av produkt:", errorText);
+                alert("Feil: " + errorText);
             }
         } catch (err) {
-            console.error("Error creating product:", err);
+            console.error("Nettverksfeil:", err);
         }
     };
 
@@ -236,7 +259,7 @@ const AdminProducts = () => {
                         </a>
                     </li>
                     <li className="relative group">
-                        <a href="#" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
+                        <a href="/" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
                             Log Out
                             <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
                         </a>
@@ -272,7 +295,7 @@ const AdminProducts = () => {
                         />
                         <div className="flex justify-between">
                             <button
-                                className="cursor-pointer bg-[#FFD700] text-black px-4 py-2 rounded-lg font-semibold w-full hover:bg-[#ffbb00]"
+                                className="bg-[#FFD700] text-black px-4 py-2 rounded-lg font-semibold w-full hover:bg-[#ffbb00]"
                                 onClick={handleCreateCategory}
                             >
                                 Opprett
@@ -379,7 +402,7 @@ const AdminProducts = () => {
                         </select>
                         <div className="flex justify-between">
                             <button
-                                className="cursor-pointer bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold w-full disabled:opacity-50"
+                                className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-lg font-semibold w-full disabled:opacity-50"
                                 onClick={handleDeleteCategory}
                                 disabled={!selectedCategoryToDelete}
                             >
@@ -413,6 +436,8 @@ const AdminProducts = () => {
                         <p className="text-sm text-gray-300 mb-1"><span className="font-semibold text-white">Pris:</span> {selectedProduct.price} kr</p>
                         <p className="text-sm text-gray-300 mb-1"><span className="font-semibold text-white">Beskrivelse:</span> {selectedProduct.description}</p>
                         <p className="text-sm text-gray-300 mb-1"><span className="font-semibold text-white">Størrelse:</span> {selectedProduct.size}</p>
+                        <p className="text-sm text-gray-300 mb-1"><span className="font-semibold text-white">Dimensjon:</span> {selectedProduct.dimension}</p>
+                        <p className="text-sm text-gray-300 mb-1"><span className="font-semibold text-white">Årstall:</span> {selectedProduct.year}</p>
                         <p className="text-sm text-gray-300 mb-1"><span className="font-semibold text-white">Kategori:</span> {selectedProduct.category}</p>
                         {selectedProduct.artist?.name && (
                             <p className="text-sm text-gray-300 mb-3"><span className="font-semibold text-white">Kunstner:</span> {selectedProduct.artist.name}</p>
@@ -463,13 +488,13 @@ const AdminProducts = () => {
                         <h2 className="text-2xl font-semibold text-white mb-6 text-center">Legg til nytt produkt</h2>
 
                         {/* FORM FIELDS */}
-                        {["title", "description", "price", "imageUrl", "size"].map((field) => (
+                        {["title", "description", "price", "imageUrl", "year", "dimension"].map((field) => (
                             <div key={field}>
                                 <label className="block text-[#F5F5F5] mb-1">
                                     {field.charAt(0).toUpperCase() + field.slice(1)}
                                 </label>
                                 <input
-                                    type={field === "price" ? "number" : "text"}
+                                    type={["price", "year"].includes(field) ? "number" : "text"}
                                     name={field}
                                     className="w-full p-2 mb-4 bg-[#1A1A1A] text-white rounded border border-gray-600 focus:border-[#FFD700] outline-none"
                                     value={newProduct[field]}
@@ -477,6 +502,20 @@ const AdminProducts = () => {
                                 />
                             </div>
                         ))}
+
+                        {/* SIZE DROPDOWN */}
+                        <label className="block text-[#F5F5F5] mb-1">Størrelse</label>
+                        <select
+                            name="size"
+                            className="w-full p-2 mb-4 bg-[#1A1A1A] text-white rounded border border-gray-600 focus:border-[#FFD700] outline-none cursor-pointer"
+                            value={newProduct.size}
+                            onChange={handleChange}
+                        >
+                            <option value="">Velg en størrelse</option>
+                            <option value="Liten">Liten</option>
+                            <option value="Medium">Medium</option>
+                            <option value="Stor">Stor</option>
+                        </select>
 
                         {/* CATEGORY DROPDOWN */}
                         <label className="block text-[#F5F5F5] mb-1">Kategori</label>

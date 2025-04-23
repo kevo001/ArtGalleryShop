@@ -1,0 +1,71 @@
+.order-summary {
+    min-height: 100vh;
+    background-color: white;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+  }
+  
+  .order-summary-header {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+  }
+  
+  .order-summary-header h2 {
+    font-size: 2.5rem;
+    margin-bottom: 1.5rem;
+  }
+  
+  .order-summary-wrapper {
+    max-width: 700px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .summary-total h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+  }
+  
+  .summary-total p {
+    font-size: 1rem;
+    margin: 0.3rem 0;
+  }
+  
+  .summary-items {
+    margin-top: 1.5rem;
+    width: 100%;
+  }
+  
+  .summary-items ul {
+    list-style-type: disc;
+    padding-left: 1.5rem;
+    margin-top: 0.5rem;
+    text-align: center;
+  }
+  
+  .summary-actions {
+    margin-top: 2rem;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+  }
+  
+  .back-btn-top {
+    padding: 0.6rem 1.2rem;
+    font-size: 1rem;
+    background-color: #eee;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  
+  .back-btn-top:hover {
+    background-color: #ddd;
+  }
+  
