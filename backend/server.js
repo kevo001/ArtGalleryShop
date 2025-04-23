@@ -2,7 +2,6 @@ const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
 const path = require('path');
-const path = require('body-parser');
 require('dotenv').config();
 
 const app = express();
@@ -13,33 +12,7 @@ app.use(cors({
   credentials: true,
 }));
 app.use("/api/webhook", require("./routes/stripeWebhook"));
-
 app.use(express.json());
-
-export const CreateToken = (id) => {
-  return jsonwebtoken.sign({ id }, process.env.JWTAUTHSECRET, { expiresIn: '60s' })
-}
-export const checkToken = async (req, res, next) => {
-  try {
-    const cookies = req.headers.cookie;
-
-    if (!cookies) {
-      return res.status(403).json({ message: "Login first" })
-    }
-    const token = cookies.split("=")[1];
-
-    if (!token) {
-      return res.status(403).json({ message: "A token is required" })
-    }
-    else {
-      const decode = jsonwebtoken.verify(token, process.env.JWTAUTHSECRET);
-      req.userId = decode.id;
-      next();
-    }
-  } catch (err) {
-    return res.status(401).json({ message: "Error in the token checking", err });
-  }
-};
 
 
 
