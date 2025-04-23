@@ -15,10 +15,12 @@ const AdminOrderHistory = () => {
       {/* NAVIGATION */}
       <nav className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-[#282828] to-[#3E3E3E] drop-shadow-lg">
         {/* Logo Section */}
-        <div>
-          < h1 className="text-2xl font-bold text-[#F5F5F5]">galleri edwin</h1>
+        <a href="/admin" className="block">
+          <h1 className="text-2xl font-bold text-[#F5F5F5] hover:text-[#FFD700] transition-colors">
+            galleri edwin
+          </h1>
           <p className="text-[#CCCCCC] text-sm">Discover the exceptional living with art</p>
-        </div>
+        </a>
 
         {/* Navigation Links */}
         <ul className="flex space-x-6">
@@ -57,9 +59,9 @@ const AdminOrderHistory = () => {
 
       {/* HEADER */}
       <header className="bg-gradient-to-r from-[#444] to-[#2F2F2F] text-center py-10 shadow-lg">
-          <h1 className="text-4xl font-bold text-white">Order History</h1>
-          <p className="text-gray-300 mt-2">Overvåk og oppdatter kundens ordrer</p>
-        </header>
+        <h1 className="text-4xl font-bold text-white">Order History</h1>
+        <p className="text-gray-300 mt-2">Overvåk og oppdatter kundens ordrer</p>
+      </header>
 
       {/* ORDER TABLE */}
       <div className="flex justify-center mt-10 px-4">

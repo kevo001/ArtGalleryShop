@@ -145,56 +145,56 @@ const AdminProducts = () => {
     };
 
     // Handle product update
-const handleUpdateProduct = async () => {
-    const { title, description, price, imageUrl, size, category, artistId, ...rest } = newProduct;
+    const handleUpdateProduct = async () => {
+        const { title, description, price, imageUrl, size, category, artistId, ...rest } = newProduct;
 
-    if (!title || !description || !price || !imageUrl || !size || !category || !artistId) {
-        alert("Alle felt må fylles ut.");
-        return;
-    }
-
-    try {
-        const res = await fetch(`http://localhost:5000/api/items/${selectedProduct._id}`, {
-            method: "PUT",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                ...rest,
-                title,
-                description,
-                price,
-                imageUrl,
-                size,
-                category,
-                artist: artistId, // ✅ Correctly assign artistId to the backend 'artist' field
-            }),
-        });
-
-        if (res.ok) {
-            const updated = await fetch("http://localhost:5000/api/items");
-            const data = await updated.json();
-            setProducts(data);
-
-            // ✅ Clear modal and selection
-            setIsModalOpen(false);
-            setSelectedProduct(null);
-            setNewProduct({
-                title: "",
-                description: "",
-                price: "",
-                imageUrl: "",
-                size: "",
-                category: "",
-                artistId: ""
-            });
-        } else {
-            alert("Noe gikk galt under oppdatering av produktet.");
+        if (!title || !description || !price || !imageUrl || !size || !category || !artistId) {
+            alert("Alle felt må fylles ut.");
+            return;
         }
-    } catch (err) {
-        console.error("Feil ved oppdatering:", err);
-    }
-};
+
+        try {
+            const res = await fetch(`http://localhost:5000/api/items/${selectedProduct._id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    ...rest,
+                    title,
+                    description,
+                    price,
+                    imageUrl,
+                    size,
+                    category,
+                    artist: artistId, // ✅ Correctly assign artistId to the backend 'artist' field
+                }),
+            });
+
+            if (res.ok) {
+                const updated = await fetch("http://localhost:5000/api/items");
+                const data = await updated.json();
+                setProducts(data);
+
+                // ✅ Clear modal and selection
+                setIsModalOpen(false);
+                setSelectedProduct(null);
+                setNewProduct({
+                    title: "",
+                    description: "",
+                    price: "",
+                    imageUrl: "",
+                    size: "",
+                    category: "",
+                    artistId: ""
+                });
+            } else {
+                alert("Noe gikk galt under oppdatering av produktet.");
+            }
+        } catch (err) {
+            console.error("Feil ved oppdatering:", err);
+        }
+    };
 
 
     return (
@@ -202,10 +202,12 @@ const handleUpdateProduct = async () => {
             {/* NAVIGATION */}
             <nav className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-[#282828] to-[#3E3E3E] drop-shadow-lg">
                 {/* Logo Section */}
-                <div>
-                    <h1 className="text-2xl font-bold text-[#F5F5F5]">galleri edwin</h1>
+                <a href="/admin" className="block">
+                    <h1 className="text-2xl font-bold text-[#F5F5F5] hover:text-[#FFD700] transition-colors">
+                        galleri edwin
+                    </h1>
                     <p className="text-[#CCCCCC] text-sm">Discover the exceptional living with art</p>
-                </div>
+                </a>
 
                 {/* Navigation Links */}
                 <ul className="flex space-x-6">
