@@ -9,6 +9,7 @@ import Artists from "./pages/Artists";
 import AdminOrderHistory from "./pages/AdminOrderHistory";
 import AdminArtists from "./pages/AdminArtists";
 import ProtectedAdminRoute from "./components/ProtectedAdminRoute";
+import ProtectedAuthRoute from "./components/ProtectedAuthRoute";
 import OrderSummary from "./pages/OrderSummary";
 import SignIn from "./pages/SignIn";
 import SignUp from "./pages/SignUp";
@@ -29,8 +30,8 @@ function Layout() {
         <Route path="/" element={<Home />} />
         <Route path="/artists" element={<Artists />} />
         <Route path="/order-summary" element={<OrderSummary />} />
-        <Route path="/signin" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
+        <Route path="/signin" element={<ProtectedAuthRoute> <SignIn /></ProtectedAuthRoute>} />
+        <Route path="/signup" element={<ProtectedAuthRoute> <SignUp /></ProtectedAuthRoute>} />
         
       </Routes>
     </>

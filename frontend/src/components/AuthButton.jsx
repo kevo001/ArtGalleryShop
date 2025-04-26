@@ -17,7 +17,7 @@ const AuthButton = () => {
     return (
       <Link
         to="/signin"
-        className="bg-[#FFD700] text-black px-4 py-2 rounded hover:bg-[#e6c200] transition"
+        className="bg-[#FFD700] text-black px-4 py-2 rounded hover:bg-[#e6c200] transition cursor-pointer"
       >
         Sign In
       </Link>
@@ -29,9 +29,9 @@ const AuthButton = () => {
     return (
       <button
         onClick={() => navigate("/admin")}
-        className="bg-[#FFD700] text-black px-4 py-2 rounded hover:bg-[#e6c200] transition"
+        className="bg-[#FFD700] text-black px-4 py-2 rounded hover:bg-[#e6c200] transition cursor-pointer"
       >
-        AdminPanel
+        Admin Panel
       </button>
     );
   }
@@ -40,9 +40,9 @@ const AuthButton = () => {
   return (
     <button
       onClick={handleLogout}
-      className="bg-[#FFD700] text-black px-4 py-2 rounded hover:bg-[#e6c200] transition"
+      className="bg-[#FFD700] text-black px-4 py-2 rounded hover:bg-[#e6c200] transition cursor-pointer"
     >
-      Logg ut
+      Sign Out
     </button>
   );
 };

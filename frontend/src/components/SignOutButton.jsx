@@ -14,7 +14,7 @@ const SignOutButton = () => {
     <div className="group">
       <button
         onClick={handleSignOut}
-        className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300"
+        className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300 cursor-pointer"
       >
         Sign Out
         <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
