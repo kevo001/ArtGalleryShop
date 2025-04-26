@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import SignOutButton from "../components/SignOutButton";
 
 const AdminProducts = () => {
     const [products, setProducts] = useState([]);
@@ -225,7 +226,7 @@ const AdminProducts = () => {
             {/* NAVIGATION */}
             <nav className="flex justify-between items-center px-6 py-4 bg-gradient-to-r from-[#282828] to-[#3E3E3E] drop-shadow-lg">
                 {/* Logo Section */}
-                <a href="/admin" className="block">
+                <a href="/" className="block">
                     <h1 className="text-2xl font-bold text-[#F5F5F5] hover:text-[#FFD700] transition-colors">
                         galleri edwin
                     </h1>
@@ -258,12 +259,7 @@ const AdminProducts = () => {
                             <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
                         </a>
                     </li>
-                    <li className="relative group">
-                        <a href="/" className="text-[#F5F5F5] hover:text-[#FFD700] transition duration-300">
-                            Log Out
-                            <span className="block w-0 h-[2px] bg-[#AAAAAA] transition-all duration-300 group-hover:w-full"></span>
-                        </a>
-                    </li>
+                    <SignOutButton />
                 </ul>
             </nav>
 

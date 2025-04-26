@@ -43,3 +43,5 @@ lerna-debug.log*
 
 # misc
 /git-filter-repo.py
+
+.gitignore
