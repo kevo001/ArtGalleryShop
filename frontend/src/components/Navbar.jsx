@@ -12,7 +12,13 @@ const Navbar = () => {
         <Link to="/">Home</Link>
         <Link to="/shop">Shop</Link>
         <Link to="/artists">Artists</Link>
-        <Link to="/gallery">Gallery</Link>
+        <a
+          href="https://www.galleriedwin.com/"
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          Gallery
+        </a>
         <Link to="/contact">Contact</Link>
       </nav>
     </header>

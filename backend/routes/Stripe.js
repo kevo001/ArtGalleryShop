@@ -5,15 +5,22 @@ const stripe  = Stripe(process.env.STRIPE_SECRET_KEY);
 
 const DOMAIN = "https://galleriedwin.onrender.com";
 
-// ✅ Create a Stripe Checkout Session
+// Full ISO list for “allow all countries”
+const ALL_COUNTRIES = [
+  /* … your array of ["AF","AX","AL",…,"ZW"] … */
+];
+
+// Paste your real rate IDs here (strings!)
+const SHIPPING_RATE_NORWAY        = "shr_1RLMBARbO64x4m079gyCOI1H";
+const SHIPPING_RATE_INTERNATIONAL = "shr_1RLM5oRbO64x4m07MvMDPu72";
+
 router.post("/create-checkout-session", async (req, res) => {
   const { cart } = req.body;
-
   if (!Array.isArray(cart)) {
     return res.status(400).json({ error: "Invalid cart data" });
   }
 
-  // only keep the fields you need
+  // Simplify & encode cart for cancel URL / webhooks if needed
   const simplified = cart.map(i => ({
     _id:      i._id,
     title:    i.title,
@@ -21,8 +28,6 @@ router.post("/create-checkout-session", async (req, res) => {
     price:    i.price,
     imageUrl: i.imageUrl,
   }));
-
-  // JSON → string → percent‑encode for URL safety
   const cartJson  = JSON.stringify(simplified);
   const cartParam = encodeURIComponent(cartJson);
 
@@ -30,6 +35,18 @@ router.post("/create-checkout-session", async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
+
+      // 1) Collect addresses from *any* country
+      shipping_address_collection: {
+        allowed_countries: ALL_COUNTRIES
+      },
+
+      // 2) Offer your two pre-created rates
+      shipping_options: [
+        { shipping_rate: SHIPPING_RATE_NORWAY        },
+        { shipping_rate: SHIPPING_RATE_INTERNATIONAL }
+      ],
+
       line_items: cart.map(item => ({
         price_data: {
           currency:    "nok",
@@ -38,9 +55,7 @@ router.post("/create-checkout-session", async (req, res) => {
         },
         quantity: item.quantity,
       })),
-      shipping_address_collection: { allowed_countries: ["NO"] },
 
-      // still save the full cart JSON in metadata if you need it server‑side
       metadata: { cart: cartJson },
 
       success_url: `${DOMAIN}/success?session_id={CHECKOUT_SESSION_ID}`,
@@ -51,29 +66,6 @@ router.post("/create-checkout-session", async (req, res) => {
   } catch (err) {
     console.error("Stripe session error:", err);
     res.status(500).json({ error: err.message });
-  }
-});
-
-// ✅ Get session summary
-router.get("/session/:id", async (req, res) => {
-  try {
-    const session = await stripe.checkout.sessions.retrieve(req.params.id, {
-      expand: ["customer_details"],
-    });
-
-    const cart = JSON.parse(session.metadata?.cart || "[]");
-
-    res.json({
-      orderNumber:  session.id,
-      customerName: session.customer_details?.name,
-      email:        session.customer_details?.email,
-      address:      session.customer_details?.address,
-      cart,
-      totalAmount:  session.amount_total / 100,
-    });
-  } catch (err) {
-    console.error("❌ Failed to fetch session:", err);
-    res.status(500).json({ error: "Failed to retrieve session data" });
   }
 });
 

@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { openModal, closeModal } from "../scripts/shopScripts";
 import "../styles/Shop.css";
 import { useNavigate, useLocation } from "react-router-dom";
-import API_BASE_URL from '../apiConfig';
+import API_BASE_URL from "../apiConfig";
 
 const Shop = () => {
   const [artworks, setArtworks] = useState([]);
@@ -12,150 +12,117 @@ const Shop = () => {
   const [cart, setCart] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
-  const [filters, setFilters] = useState({ size: [], artist: "", type: "" });
+  const [filters, setFilters] = useState({
+    size: [],
+    artist: "",
+    type: "",
+    price: { min: "", max: "" },
+  });
   const [artistOptions, setArtistOptions] = useState([]);
   const [typeOptions, setTypeOptions] = useState([]);
+  const [priceBounds, setPriceBounds] = useState({ min: 0, max: 0 });
 
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Hydrate state
   useEffect(() => {
-    if (location.state?.filterArtist) {
+    if (location.state?.filterArtist)
       setFilters(f => ({ ...f, artist: location.state.filterArtist }));
-    }
+    if (location.state?.cart) setCart(location.state.cart);
   }, [location.state]);
 
-  // Fetch combined items (admin + Stripe) from single endpoint
+  // Persist cart
   useEffect(() => {
-    const fetchItems = async () => {
+    const saved = JSON.parse(localStorage.getItem("cart") || "[]");
+    setCart(saved);
+  }, []);
+  useEffect(() => localStorage.setItem("cart", JSON.stringify(cart)), [cart]);
+
+  // Fetch items & build options & price bounds
+  useEffect(() => {
+    (async () => {
       try {
         const res = await fetch(`${API_BASE_URL}/api/items`);
         const data = await res.json();
-
         setArtworks(data);
         setFilteredArtworks(data);
 
-        // Build artist filter options
+        // artists
         const artistMap = new Map();
-        data.forEach(item => {
-          if (item.artist && item.artist._id) {
-            artistMap.set(item.artist._id, item.artist);
-          }
-        });
+        data.forEach(i => i.artist?._id && artistMap.set(i.artist._id, i.artist));
         setArtistOptions([...artistMap.values()]);
 
-        // Build category filter options
-        const categories = [...new Set(data.map(item => item.category).filter(Boolean))];
-        setTypeOptions(categories);
-      } catch (error) {
-        console.error("Failed to fetch items:", error);
-      }
-    };
+        // categories
+        setTypeOptions([...new Set(data.map(i => i.category).filter(Boolean))]);
 
-    fetchItems();
+        // price bounds
+        const prices = data.map(i => Number(i.price));
+        const min = Math.min(...prices, 0);
+        const max = Math.max(...prices, 0);
+        setPriceBounds({ min, max });
+        setFilters(f => ({ ...f, price: { min: String(min), max: String(max) } }));
+      } catch (err) {
+        console.error("Failed to fetch items:", err);
+      }
+    })();
   }, []);
 
-  // Filter logic
-  useEffect(() => {
-    let filtered = artworks;
-
-    if (searchTerm) {
-      const term = searchTerm.toLowerCase();
-      filtered = filtered.filter(art =>
-        art.title.toLowerCase().includes(term) ||
-        art.artist?.name?.toLowerCase().includes(term)
-      );
-    }
-
-    if (filters.artist) {
-      filtered = filtered.filter(art => art.artist?._id === filters.artist);
-    }
-
-    if (filters.type) {
-      filtered = filtered.filter(art => art.category === filters.type);
-    }
-
-    if (filters.size.length > 0) {
-      filtered = filtered.filter(art => filters.size.includes(art.size));
-    }
-
-    setFilteredArtworks(filtered);
-  }, [searchTerm, filters, artworks]);
-
-  // Handlers for cart logic
+  // Toggle size
   const toggleSize = size => {
-    setFilters(prev => {
-      const sizes = prev.size.includes(size)
-        ? prev.size.filter(s => s !== size)
-        : [...prev.size, size];
-      return { ...prev, size: sizes };
-    });
+    setFilters(f => ({
+      ...f,
+      size: f.size.includes(size)
+        ? f.size.filter(s => s !== size)
+        : [...f.size, size]
+    }));
   };
 
+  // Apply filters
+  useEffect(() => {
+    let f = artworks;
+    if (searchTerm) {
+      const t = searchTerm.toLowerCase();
+      f = f.filter(a =>
+        a.title.toLowerCase().includes(t) ||
+        a.artist?.name?.toLowerCase().includes(t)
+      );
+    }
+    if (filters.artist) f = f.filter(a => a.artist?._id === filters.artist);
+    if (filters.type)   f = f.filter(a => a.category === filters.type);
+    if (filters.size.length) f = f.filter(a => filters.size.includes(a.size));
+    const min = parseFloat(filters.price.min),
+          max = parseFloat(filters.price.max);
+    if (!isNaN(min)) f = f.filter(a => Number(a.price) >= min);
+    if (!isNaN(max)) f = f.filter(a => Number(a.price) <= max);
+    setFilteredArtworks(f);
+  }, [searchTerm, filters, artworks]);
+
+  // Cart helpers (addToCart, removeFromCart, updateQuantity)...
   const addToCart = (item, qty = 1) => {
-    const parsed = Number(item.quantity);
-    const stock  = parsed > 0 ? parsed : 1; 
-    const initial  = Math.max(1, Math.min(qty, stock)); 
+    const stock = Number(item.quantity) || 1;
+    const quantity = Math.min(Math.max(qty, 1), stock);
     setCart(prev => {
       const exists = prev.find(i => i._id === item._id);
       if (exists) {
         return prev.map(i =>
           i._id === item._id
-            ? {
-                ...i,
-                // clamp the new cart qty to the real stock
-                quantity: Math.min(i.quantity + qty, stock)
-              }
+            ? { ...i, quantity: Math.min(i.quantity + qty, stock) }
             : i
         );
       }
-      return [
-        ...prev,
-        {
-          ...item,
-          quantity: Math.max(1, Math.min(qty, stock)),  // initial qty
-          stock                            // stash the real stock
-        }
-      ];
+      return [...prev, { ...item, quantity, stock }];
     });
   };
+  const removeFromCart = id => setCart(prev => prev.filter(i => i._id !== id));
+  const updateQuantity = (id, change) =>
+    setCart(prev => prev.map(item =>
+      item._id === id
+        ? { ...item, quantity: Math.max(1, Math.min(item.quantity + change, item.stock)) }
+        : item
+    ));
 
-  const removeFromCart = id => {
-    setCart(prev => prev.filter(i => i._id !== id));
-  };
-
-  const updateQuantity = (id, change) => {
-    setCart(prev =>
-      prev.map(item =>
-        item._id === id
-          ? {
-              ...item,
-              // never go below 1, never above the real stock
-              quantity: Math.max(
-                1,
-                Math.min(item.quantity + change, item.stock)
-              )
-            }
-          : item
-      )
-    );
-  };
-
-  // Persist cart in localStorage
-  useEffect(() => {
-    const saved = JSON.parse(localStorage.getItem('cart') || "[]");
-    setCart(saved);
-  }, []);
-  useEffect(() => {
-    localStorage.setItem('cart', JSON.stringify(cart));
-  }, [cart]);
-
-  // Handle cart passed via navigation state
-  useEffect(() => {
-    if (location.state?.cart) setCart(location.state.cart);
-  }, [location.state]);
-
-  // Reset quantity to 1 and open modal when selectedArt changes
+  // Modal reset
   useEffect(() => {
     if (selectedArt) {
       setModalQuantity(1);
@@ -163,55 +130,111 @@ const Shop = () => {
     }
   }, [selectedArt]);
 
+  // Compute slider track styles
+  const range = priceBounds.max - priceBounds.min;
+  const leftPercent = ((filters.price.min - priceBounds.min) / range) * 100;
+  const widthPercent = ((filters.price.max - filters.price.min) / range) * 100;
+
   return (
     <div>
-      <main>
-        {/* FILTERS */}
+      <main style={{ display: "flex" }}>
         <aside className="filter">
           <h3>Filter by</h3>
+
+          {/* Artist */}
           <div>
             <h4>Artist</h4>
             <select
               value={filters.artist}
-              onChange={e => setFilters({ ...filters, artist: e.target.value })}
+              onChange={e => setFilters(f => ({ ...f, artist: e.target.value }))}
             >
               <option value="">All</option>
-              {artistOptions.map(artist => (
-                <option key={artist._id} value={artist._id}>
-                  {artist.name}
-                </option>
+              {artistOptions.map(a => (
+                <option key={a._id} value={a._id}>{a.name}</option>
               ))}
             </select>
           </div>
+
+          {/* Category */}
           <div>
             <h4>Category</h4>
             <select
               value={filters.type}
-              onChange={e => setFilters({ ...filters, type: e.target.value })}
+              onChange={e => setFilters(f => ({ ...f, type: e.target.value }))}
             >
               <option value="">All</option>
               {typeOptions.map(cat => (
-                <option key={cat} value={cat}>
-                  {cat}
-                </option>
+                <option key={cat} value={cat}>{cat}</option>
               ))}
             </select>
           </div>
+
+          {/* Size */}
           <div>
             <h4>Size</h4>
-            {["Small", "Medium", "Large"].map(size => (
-              <label key={size}>
-                <input
-                  type="checkbox"
-                  checked={filters.size.includes(size)}
-                  onChange={() => toggleSize(size)}
-                />
-                {size}
-              </label>
-            ))}
+            <details>
+              <summary>
+                {filters.size.length ? filters.size.join(", ") : "Select sizes"}
+              </summary>
+              <div className="size-options">
+                {["Small","Medium","Large"].map(sz => (
+                  <label key={sz}>
+                    <input
+                      type="checkbox"
+                      checked={filters.size.includes(sz)}
+                      onChange={() => toggleSize(sz)}
+                    />
+                    {sz}
+                  </label>
+                ))}
+              </div>
+            </details>
+          </div>
+
+          {/* Dual-thumb Price Slider */}
+          <div>
+            <h4>Price</h4>
+            <div className="price-range">
+              <div className="slider-track" />
+              <div
+                className="slider-range"
+                style={{ left: `${leftPercent}%`, width: `${widthPercent}%` }}
+              />
+              <input
+                type="range"
+                min={priceBounds.min}
+                max={priceBounds.max}
+                value={filters.price.min}
+                onChange={e =>
+                  setFilters(f => ({
+                    ...f,
+                    price: { ...f.price, min: e.target.value }
+                  }))
+                }
+                className="thumb thumb-left"
+              />
+              <input
+                type="range"
+                min={priceBounds.min}
+                max={priceBounds.max}
+                value={filters.price.max}
+                onChange={e =>
+                  setFilters(f => ({
+                    ...f,
+                    price: { ...f.price, max: e.target.value }
+                  }))
+                }
+                className="thumb thumb-right"
+              />
+            </div>
+            <div className="slider-values">
+              <span>kr {filters.price.min}</span>
+              <span>kr {filters.price.max}</span>
+            </div>
           </div>
         </aside>
-        {/* SHOP HEADER + PRODUCTS */}
+
+        {/* SHOP CONTENT */}
         <div style={{ flexGrow: 1 }}>
           <div className="shop-header">
             <div className="shop-header-row">
@@ -219,7 +242,7 @@ const Shop = () => {
                 <h2>All Products</h2>
                 <p className="product-count">
                   {filteredArtworks.length} product
-                  {filteredArtworks.length !== 1 && 's'}
+                  {filteredArtworks.length !== 1 && "s"}
                 </p>
               </div>
               <div className="shop-header-center">
@@ -228,7 +251,7 @@ const Shop = () => {
                   className="search-input"
                   placeholder="Search by title or artist..."
                   value={searchTerm}
-                  onChange={e => setSearchTerm(e.target.value)}
+                  onChange={(e) => setSearchTerm(e.target.value)}
                 />
               </div>
               <div className="shop-header-right">
@@ -241,8 +264,9 @@ const Shop = () => {
               </div>
             </div>
           </div>
+
           <section className="shop">
-            {filteredArtworks.map(art => (
+            {filteredArtworks.map((art) => (
               <div
                 key={art._id}
                 className="art-card"
@@ -280,9 +304,7 @@ const Shop = () => {
               <label className="qty-label">Quantity *</label>
               <div className="quantity-controls">
                 <button
-                  onClick={() =>
-                    setModalQuantity(q => Math.max(1, q - 1))
-                  }
+                  onClick={() => setModalQuantity((q) => Math.max(1, q - 1))}
                   disabled={modalQuantity <= 1}
                 >
                   −
@@ -290,30 +312,31 @@ const Shop = () => {
                 <input type="number" value={modalQuantity} readOnly />
                 <button
                   onClick={() =>
-                    setModalQuantity(q =>
-                      Math.min(selectedArt.quantity, q + 1)
+                    setModalQuantity((q) =>
+                      Math.min(Number(selectedArt.quantity) || 1, q + 1)
                     )
                   }
-                  disabled={modalQuantity >= selectedArt.quantity}
+                  disabled={modalQuantity >= Number(selectedArt.quantity)}
                 >
                   ＋
                 </button>
               </div>
+
               {/* Meta */}
               <div className="meta">
                 {selectedArt.artist?.name && (
                   <>
                     <h4>Artist</h4>
                     <p className="artist-name">
-                    <span
-            className="cursor-pointer hover:text-[#FFD700]"
-            onClick={() => {
-              closeModal(setSelectedArt);
-              navigate(`/artists/${selectedArt.artist._id}`);
-            }}
-          >
-            {selectedArt.artist.name}
-          </span>
+                      <span
+                        className="cursor-pointer hover:text-[#FFD700]"
+                        onClick={() => {
+                          closeModal(setSelectedArt);
+                          navigate(`/artists/${selectedArt.artist._id}`);
+                        }}
+                      >
+                        {selectedArt.artist.name}
+                      </span>
                     </p>
                   </>
                 )}
@@ -335,20 +358,17 @@ const Shop = () => {
               </div>
 
               {/* Add to Cart */}
-               <button
+              <button
                 className="add-to-cart"
                 onClick={() => {
-                // if stock is defined, cap at it; otherwise just use modalQuantity
-                const available = selectedArt.quantity != null
-                ? Number(selectedArt.quantity)
-                : modalQuantity;
-                const qty = Math.min(modalQuantity, available);
-                addToCart(selectedArt, qty);
-                closeModal(setSelectedArt);
-            }}
-          >
-           Add to Cart
-          </button>
+                  const stock = Number(selectedArt.quantity) || modalQuantity;
+                  const qty = Math.min(modalQuantity, stock);
+                  addToCart(selectedArt, qty);
+                  closeModal(setSelectedArt);
+                }}
+              >
+                Add to Cart
+              </button>
             </div>
           </div>
         </div>
@@ -359,8 +379,7 @@ const Shop = () => {
         <div className="cart-drawer">
           <div className="cart-header">
             <h3>
-              Cart ({cart.length} item
-              {cart.length !== 1 && 's'})
+              Cart ({cart.length} item{cart.length !== 1 && "s"})
             </h3>
             <button
               onClick={() => setIsCartOpen(false)}
@@ -374,7 +393,7 @@ const Shop = () => {
               <p>Your cart is empty.</p>
             ) : (
               <ul>
-                {cart.map(item => (
+                {cart.map((item) => (
                   <li key={item._id} className="cart-item">
                     <img
                       src={item.imageUrl}
@@ -385,18 +404,14 @@ const Shop = () => {
                       <strong>{item.title}</strong>
                       <div className="quantity-controls">
                         <button
-                          onClick={() =>
-                            updateQuantity(item._id, -1)
-                          }
+                          onClick={() => updateQuantity(item._id, -1)}
                           disabled={item.quantity <= 1}
                         >
                           −
                         </button>
                         <span>{item.quantity}</span>
                         <button
-                          onClick={() =>
-                            updateQuantity(item._id, 1)
-                          }
+                          onClick={() => updateQuantity(item._id, 1)}
                           disabled={item.quantity >= item.stock}
                         >
                           ＋
