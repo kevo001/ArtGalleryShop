@@ -120,7 +120,6 @@ const AdminArtists = () => {
           <li><a href="/admin/order-history" className="text-[#F5F5F5] hover:text-[#FFD700]">Orders</a></li>
           <li><a href="/admin/products" className="text-[#F5F5F5] hover:text-[#FFD700]">Products</a></li>
           <li><a href="/admin/artists" className="text-[#FFD700]">Artists</a></li>
-          <li><a href="#" className="text-[#F5F5F5] hover:text-[#FFD700]">Log Out</a></li>
         </ul>
       </nav>
 

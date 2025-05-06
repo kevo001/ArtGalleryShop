@@ -1,33 +1,99 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { useForm, ValidationError } from '@formspree/react';
+import DOMPurify from 'dompurify';
 import '../styles/Contact.css';
 import API_BASE_URL from '../apiConfig';
-import.meta.env.VITE_API_URL
+import.meta.env.VITE_API_URL;
+
+// Helper to strip CR/LF to prevent header injection
+const stripNewlines = s => s.replace(/[\r\n]+/g, ' ');
 
 function ContactForm() {
   const [state, handleSubmit] = useForm("xrbpjnkl");
+  const [name, setName] = useState('');
+  const [subject, setSubject] = useState('');
+  const [email, setEmail] = useState('');
+  const [message, setMessage] = useState('');
 
   if (state.succeeded) {
     return <p className="success-message">Thanks for your message! We'll be in touch soon.</p>;
   }
 
+  const onSubmit = e => {
+    e.preventDefault();
+
+    // Trim and limit length
+    const cleanName = stripNewlines(name.trim()).slice(0, 200);
+    const cleanSubject = stripNewlines(subject.trim()).slice(0, 200);
+    const cleanEmail = email.trim().slice(0, 254);
+    // Optionally sanitize message HTML (here we allow plain text only)
+    const cleanMessage = DOMPurify.sanitize(message.trim(), {
+      ALLOWED_TAGS: [],
+      ALLOWED_ATTR: []
+    }).slice(0, 1000);
+
+    // Overwrite form fields before submission
+    e.target.name.value = cleanName;
+    e.target.subject.value = cleanSubject;
+    e.target.email.value = cleanEmail;
+    e.target.message.value = cleanMessage;
+
+    handleSubmit(e);
+  };
+
   return (
     <>
-      <form onSubmit={handleSubmit} className="contact-form">
+      <form onSubmit={onSubmit} className="contact-form">
         <h2>Contact Us</h2>
 
         <label htmlFor="name">Full Name</label>
-        <input id="name" type="text" name="name" required />
+        <input
+          id="name"
+          type="text"
+          name="name"
+          required
+          value={name}
+          onChange={e => setName(e.target.value)}
+          maxLength={200}
+          pattern="[^\r\n]*"
+          title="Please avoid line breaks"
+        />
 
         <label htmlFor="subject">Subject</label>
-        <input id="subject" type="text" name="subject" required />
+        <input
+          id="subject"
+          type="text"
+          name="subject"
+          required
+          value={subject}
+          onChange={e => setSubject(e.target.value)}
+          maxLength={200}
+          pattern="[^\r\n]*"
+          title="Please avoid line breaks"
+        />
 
         <label htmlFor="email">Email Address</label>
-        <input id="email" type="email" name="email" required />
+        <input
+          id="email"
+          type="email"
+          name="email"
+          required
+          value={email}
+          onChange={e => setEmail(e.target.value)}
+          maxLength={254}
+        />
         <ValidationError prefix="Email" field="email" errors={state.errors} />
 
         <label htmlFor="message">Your Message</label>
-        <textarea id="message" name="message" rows="5" required />
+        <textarea
+          id="message"
+          name="message"
+          rows="5"
+          required
+          value={message}
+          onChange={e => setMessage(e.target.value)}
+          maxLength={1000}
+        />
         <ValidationError prefix="Message" field="message" errors={state.errors} />
 
         {/* Honeypot field to trap bots */}

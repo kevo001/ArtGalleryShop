@@ -1,5 +1,6 @@
 body {
     background-color: white;
+    font-family: "Trebuchet MS", Helvetica, sans-serif;
   }
   
   .back-btn-top {
@@ -42,7 +43,7 @@ body {
     cursor: pointer;
     padding: 0;
     line-height: 1;
-    margin: 0;
+    margin: 5%;
     display: flex;
     align-items: center;
     transform: translateY(-10px);

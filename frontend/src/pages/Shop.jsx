@@ -246,14 +246,24 @@ const Shop = () => {
                 </p>
               </div>
               <div className="shop-header-center">
-                <input
-                  type="text"
-                  className="search-input"
-                  placeholder="Search by title or artist..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                />
-              </div>
+              <input
+              type="text"
+              className="search-input"
+              placeholder="Search by title or artist..."
+              value={searchTerm}
+              onChange={e => {
+              let v = e.target.value;
+              // 1) Remove leading/trailing spaces
+              v = v.trimStart();
+              // 2) Cap length
+              if (v.length > 100) v = v.slice(0, 100);
+              // 3) Whitelist: letters, numbers, space, hyphen, underscore
+              v = v.replace(/[^a-zA-Z]/g, '');
+              setSearchTerm(v);
+            }}
+  />
+</div>
+
               <div className="shop-header-right">
                 <button
                   className="cart-toggle"
